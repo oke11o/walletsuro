@@ -1,0 +1,78 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "version": "1.0.0",
+    "title": "Swagger Walletsuro",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "bevzenko.sergey@gmail.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "localshot",
+  "basePath": "/v1",
+  "tags": [
+    {
+      "name": "wallet",
+      "description": "Everything about your Wallets",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://swagger.io"
+      }
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/info": {
+      "get": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "info",
+        "description": "",
+        "operationId": "info",
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/create": {
+      "post": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Create new wallte",
+        "description": "",
+        "operationId": "createWallet",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "header",
+            "description": "",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    }
+  }
+}
