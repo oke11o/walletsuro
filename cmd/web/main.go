@@ -3,6 +3,8 @@
 package main
 
 import (
+	"gitlab.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
+	"gitlab.com/oke11o/walletsuro/internal/handler"
 	"log"
 	"os"
 
@@ -23,7 +25,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	s := handler.NewServer()
+
 	api := operations.NewWalletsuroAPI(swaggerSpec)
+	handlers(api, s)
+
 	server := restapi.NewServer(api)
 	defer server.Shutdown()
 
@@ -54,4 +60,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
+}
+
+func handlers(api *operations.WalletsuroAPI, s *handler.Server) {
+	api.WalletInfoHandler = wallet.InfoHandlerFunc(s.Info)
 }
