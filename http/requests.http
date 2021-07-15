@@ -1,8 +1,23 @@
-GET {{service}}/info
+GET {{service}}/v1/info
 Content-Type: application/json
-X-UserId: 1
+X-UserID: 1
 
 {
-  "userId": 600017692,
-  "itemId": 2518573204
 }
+
+###
+
+GET {{service}}/v1/report
+Content-Type: application/json
+X-UserID: 1
+
+###
+
+POST {{service}}/v1/create
+Content-Type: application/json
+X-UserID: 1
+
+{
+}
+
+###

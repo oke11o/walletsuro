@@ -9,9 +9,11 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // DepositHandlerFunc turns a function with the right signature into a deposit handler
@@ -66,14 +68,47 @@ func (o *Deposit) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 type DepositBody struct {
 
 	// amount
-	Amount int64 `json:"amount,omitempty"`
+	// Required: true
+	Amount *int64 `json:"amount"`
 
 	// wallet id
-	WalletID string `json:"wallet_id,omitempty"`
+	// Required: true
+	WalletID *string `json:"wallet_id"`
 }
 
 // Validate validates this deposit body
 func (o *DepositBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAmount(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateWalletID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DepositBody) validateAmount(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"amount", "body", o.Amount); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *DepositBody) validateWalletID(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"wallet_id", "body", o.WalletID); err != nil {
+		return err
+	}
+
 	return nil
 }
 

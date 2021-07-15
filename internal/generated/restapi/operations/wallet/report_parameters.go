@@ -15,19 +15,19 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// NewCreateWalletParams creates a new CreateWalletParams object
+// NewReportParams creates a new ReportParams object
 //
 // There are no default values defined in the spec.
-func NewCreateWalletParams() CreateWalletParams {
+func NewReportParams() ReportParams {
 
-	return CreateWalletParams{}
+	return ReportParams{}
 }
 
-// CreateWalletParams contains all the bound params for the create wallet operation
+// ReportParams contains all the bound params for the report operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters createWallet
-type CreateWalletParams struct {
+// swagger:parameters report
+type ReportParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -42,8 +42,8 @@ type CreateWalletParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewCreateWalletParams() beforehand.
-func (o *CreateWalletParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewReportParams() beforehand.
+func (o *ReportParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -58,7 +58,7 @@ func (o *CreateWalletParams) BindRequest(r *http.Request, route *middleware.Matc
 }
 
 // bindXUserID binds and validates parameter XUserID from header.
-func (o *CreateWalletParams) bindXUserID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *ReportParams) bindXUserID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("X-UserID", "header", rawData)
 	}

@@ -37,14 +37,14 @@ type DepositParams struct {
 
 	/*
 	  Required: true
+	  In: header
+	*/
+	XUserID int64
+	/*
+	  Required: true
 	  In: body
 	*/
 	Body DepositBody
-	/*
-	  Required: true
-	  In: header
-	*/
-	UserID int64
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -55,6 +55,10 @@ func (o *DepositParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 	var res []error
 
 	o.HTTPRequest = r
+
+	if err := o.bindXUserID(r.Header[http.CanonicalHeaderKey("X-UserID")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
@@ -83,20 +87,16 @@ func (o *DepositParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
-
-	if err := o.bindUserID(r.Header[http.CanonicalHeaderKey("user_id")], true, route.Formats); err != nil {
-		res = append(res, err)
-	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-// bindUserID binds and validates parameter UserID from header.
-func (o *DepositParams) bindUserID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindXUserID binds and validates parameter XUserID from header.
+func (o *DepositParams) bindXUserID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("user_id", "header", rawData)
+		return errors.Required("X-UserID", "header", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -105,15 +105,15 @@ func (o *DepositParams) bindUserID(rawData []string, hasKey bool, formats strfmt
 
 	// Required: true
 
-	if err := validate.RequiredString("user_id", "header", raw); err != nil {
+	if err := validate.RequiredString("X-UserID", "header", raw); err != nil {
 		return err
 	}
 
 	value, err := swag.ConvertInt64(raw)
 	if err != nil {
-		return errors.InvalidType("user_id", "header", "int64", raw)
+		return errors.InvalidType("X-UserID", "header", "int64", raw)
 	}
-	o.UserID = value
+	o.XUserID = value
 
 	return nil
 }

@@ -6,9 +6,10 @@ import (
 	"crypto/tls"
 	"net/http"
 
+	"gitlab.com/oke11o/walletsuro/internal/handler"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/runtime/middleware"
 
 	"gitlab.com/oke11o/walletsuro/internal/generated/restapi/operations"
 	"gitlab.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
@@ -37,12 +38,15 @@ func configureAPI(api *operations.WalletsuroAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
+	api.CsvProducer = runtime.CSVProducer()
 
-	if api.WalletCreateWalletHandler == nil {
-		api.WalletCreateWalletHandler = wallet.CreateWalletHandlerFunc(func(params wallet.CreateWalletParams) middleware.Responder {
-			return middleware.NotImplemented("operation wallet.CreateWallet has not yet been implemented")
-		})
-	}
+	s := handler.NewServer()
+
+	api.WalletInfoHandler = wallet.InfoHandlerFunc(s.Info)
+	api.WalletCreateWalletHandler = wallet.CreateWalletHandlerFunc(s.CreateWallet)
+	api.WalletDepositHandler = wallet.DepositHandlerFunc(s.Deposit)
+	api.WalletTransferHandler = wallet.TransferHandlerFunc(s.Transfer)
+	api.WalletReportHandler = wallet.ReportHandlerFunc(s.Report)
 
 	api.PreServerShutdown = func() {}
 

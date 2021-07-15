@@ -7,6 +7,7 @@ package operations
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -42,6 +43,9 @@ func NewWalletsuroAPI(spec *loads.Document) *WalletsuroAPI {
 
 		JSONConsumer: runtime.JSONConsumer(),
 
+		CsvProducer: runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+			return errors.NotImplemented("csv producer has not yet been implemented")
+		}),
 		JSONProducer: runtime.JSONProducer(),
 
 		WalletCreateWalletHandler: wallet.CreateWalletHandlerFunc(func(params wallet.CreateWalletParams) middleware.Responder {
@@ -52,6 +56,12 @@ func NewWalletsuroAPI(spec *loads.Document) *WalletsuroAPI {
 		}),
 		WalletInfoHandler: wallet.InfoHandlerFunc(func(params wallet.InfoParams) middleware.Responder {
 			return middleware.NotImplemented("operation wallet.Info has not yet been implemented")
+		}),
+		WalletReportHandler: wallet.ReportHandlerFunc(func(params wallet.ReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation wallet.Report has not yet been implemented")
+		}),
+		WalletTransferHandler: wallet.TransferHandlerFunc(func(params wallet.TransferParams) middleware.Responder {
+			return middleware.NotImplemented("operation wallet.Transfer has not yet been implemented")
 		}),
 	}
 }
@@ -85,6 +95,9 @@ type WalletsuroAPI struct {
 	//   - application/json
 	JSONConsumer runtime.Consumer
 
+	// CsvProducer registers a producer for the following mime types:
+	//   - text/csv
+	CsvProducer runtime.Producer
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
@@ -95,6 +108,10 @@ type WalletsuroAPI struct {
 	WalletDepositHandler wallet.DepositHandler
 	// WalletInfoHandler sets the operation handler for the info operation
 	WalletInfoHandler wallet.InfoHandler
+	// WalletReportHandler sets the operation handler for the report operation
+	WalletReportHandler wallet.ReportHandler
+	// WalletTransferHandler sets the operation handler for the transfer operation
+	WalletTransferHandler wallet.TransferHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -168,6 +185,9 @@ func (o *WalletsuroAPI) Validate() error {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
 
+	if o.CsvProducer == nil {
+		unregistered = append(unregistered, "CsvProducer")
+	}
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
@@ -180,6 +200,12 @@ func (o *WalletsuroAPI) Validate() error {
 	}
 	if o.WalletInfoHandler == nil {
 		unregistered = append(unregistered, "wallet.InfoHandler")
+	}
+	if o.WalletReportHandler == nil {
+		unregistered = append(unregistered, "wallet.ReportHandler")
+	}
+	if o.WalletTransferHandler == nil {
+		unregistered = append(unregistered, "wallet.TransferHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -227,6 +253,8 @@ func (o *WalletsuroAPI) ProducersFor(mediaTypes []string) map[string]runtime.Pro
 	result := make(map[string]runtime.Producer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
+		case "text/csv":
+			result["text/csv"] = o.CsvProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
 		}
@@ -281,6 +309,14 @@ func (o *WalletsuroAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/info"] = wallet.NewInfo(o.context, o.WalletInfoHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/report"] = wallet.NewReport(o.context, o.WalletReportHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/transfer"] = wallet.NewTransfer(o.context, o.WalletTransferHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

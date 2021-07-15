@@ -13,7 +13,7 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "host": "localshot",
+  "host": "localhost",
   "basePath": "/v1",
   "tags": [
     {
@@ -37,6 +37,12 @@
         "summary": "info",
         "description": "",
         "operationId": "info",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "ok"
@@ -55,9 +61,15 @@
         "summary": "Create new wallet account",
         "description": "",
         "operationId": "createWallet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "user_id",
+            "name": "X-UserID",
             "in": "header",
             "description": "",
             "type": "integer",
@@ -82,9 +94,15 @@
         "summary": "Deposit money to the wallet",
         "description": "Deposit money to the wallet",
         "operationId": "deposit",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "user_id",
+            "name": "X-UserID",
             "in": "header",
             "description": "",
             "type": "integer",
@@ -96,6 +114,10 @@
             "required": true,
             "schema": {
               "type": "object",
+              "required": [
+                "wallet_id",
+                "amount"
+              ],
               "properties": {
                 "wallet_id": {
                   "type": "string"
@@ -106,6 +128,93 @@
               }
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/transfer": {
+      "post": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Transfer money to another wallet",
+        "description": "Transfer money to another wallet",
+        "operationId": "transfer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-UserID",
+            "in": "header",
+            "description": "",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "from_wallet_id",
+                "to_wallet_id",
+                "amount"
+              ],
+              "properties": {
+                "from_wallet_id": {
+                  "type": "string"
+                },
+                "to_wallet_id": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/report": {
+      "get": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Report account history",
+        "description": "Report account history",
+        "operationId": "report",
+        "parameters": [
+          {
+            "name": "X-UserID",
+            "in": "header",
+            "description": "",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "produces": [
+          "text/csv"
         ],
         "responses": {
           "200": {

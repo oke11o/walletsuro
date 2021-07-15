@@ -34,11 +34,17 @@ func init() {
     },
     "version": "1.0.0"
   },
-  "host": "localshot",
+  "host": "localhost",
   "basePath": "/v1",
   "paths": {
     "/create": {
       "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "wallet"
         ],
@@ -47,7 +53,7 @@ func init() {
         "parameters": [
           {
             "type": "integer",
-            "name": "user_id",
+            "name": "X-UserID",
             "in": "header",
             "required": true
           }
@@ -65,6 +71,12 @@ func init() {
     "/deposit": {
       "post": {
         "description": "Deposit money to the wallet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "wallet"
         ],
@@ -73,7 +85,7 @@ func init() {
         "parameters": [
           {
             "type": "integer",
-            "name": "user_id",
+            "name": "X-UserID",
             "in": "header",
             "required": true
           },
@@ -83,6 +95,10 @@ func init() {
             "required": true,
             "schema": {
               "type": "object",
+              "required": [
+                "wallet_id",
+                "amount"
+              ],
               "properties": {
                 "amount": {
                   "type": "integer"
@@ -106,6 +122,12 @@ func init() {
     },
     "/info": {
       "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "wallet"
         ],
@@ -114,6 +136,91 @@ func init() {
         "responses": {
           "200": {
             "description": "ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/report": {
+      "get": {
+        "description": "Report account history",
+        "produces": [
+          "text/csv"
+        ],
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Report account history",
+        "operationId": "report",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "X-UserID",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/transfer": {
+      "post": {
+        "description": "Transfer money to another wallet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Transfer money to another wallet",
+        "operationId": "transfer",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "X-UserID",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "from_wallet_id",
+                "to_wallet_id",
+                "amount"
+              ],
+              "properties": {
+                "amount": {
+                  "type": "integer"
+                },
+                "from_wallet_id": {
+                  "type": "string"
+                },
+                "to_wallet_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
           },
           "405": {
             "description": "Invalid input"
@@ -150,11 +257,17 @@ func init() {
     },
     "version": "1.0.0"
   },
-  "host": "localshot",
+  "host": "localhost",
   "basePath": "/v1",
   "paths": {
     "/create": {
       "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "wallet"
         ],
@@ -163,7 +276,7 @@ func init() {
         "parameters": [
           {
             "type": "integer",
-            "name": "user_id",
+            "name": "X-UserID",
             "in": "header",
             "required": true
           }
@@ -181,6 +294,12 @@ func init() {
     "/deposit": {
       "post": {
         "description": "Deposit money to the wallet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "wallet"
         ],
@@ -189,7 +308,7 @@ func init() {
         "parameters": [
           {
             "type": "integer",
-            "name": "user_id",
+            "name": "X-UserID",
             "in": "header",
             "required": true
           },
@@ -199,6 +318,10 @@ func init() {
             "required": true,
             "schema": {
               "type": "object",
+              "required": [
+                "wallet_id",
+                "amount"
+              ],
               "properties": {
                 "amount": {
                   "type": "integer"
@@ -222,6 +345,12 @@ func init() {
     },
     "/info": {
       "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "wallet"
         ],
@@ -230,6 +359,91 @@ func init() {
         "responses": {
           "200": {
             "description": "ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/report": {
+      "get": {
+        "description": "Report account history",
+        "produces": [
+          "text/csv"
+        ],
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Report account history",
+        "operationId": "report",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "X-UserID",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/transfer": {
+      "post": {
+        "description": "Transfer money to another wallet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Transfer money to another wallet",
+        "operationId": "transfer",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "X-UserID",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "from_wallet_id",
+                "to_wallet_id",
+                "amount"
+              ],
+              "properties": {
+                "amount": {
+                  "type": "integer"
+                },
+                "from_wallet_id": {
+                  "type": "string"
+                },
+                "to_wallet_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
           },
           "405": {
             "description": "Invalid input"
