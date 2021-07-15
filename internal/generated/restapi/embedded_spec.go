@@ -42,7 +42,7 @@ func init() {
         "tags": [
           "wallet"
         ],
-        "summary": "Create new wallte",
+        "summary": "Create new wallet account",
         "operationId": "createWallet",
         "parameters": [
           {
@@ -50,6 +50,48 @@ func init() {
             "name": "user_id",
             "in": "header",
             "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/deposit": {
+      "post": {
+        "description": "Deposit money to the wallet",
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Deposit money to the wallet",
+        "operationId": "deposit",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "amount": {
+                  "type": "integer"
+                },
+                "wallet_id": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -116,7 +158,7 @@ func init() {
         "tags": [
           "wallet"
         ],
-        "summary": "Create new wallte",
+        "summary": "Create new wallet account",
         "operationId": "createWallet",
         "parameters": [
           {
@@ -124,6 +166,48 @@ func init() {
             "name": "user_id",
             "in": "header",
             "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/deposit": {
+      "post": {
+        "description": "Deposit money to the wallet",
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Deposit money to the wallet",
+        "operationId": "deposit",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "amount": {
+                  "type": "integer"
+                },
+                "wallet_id": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {

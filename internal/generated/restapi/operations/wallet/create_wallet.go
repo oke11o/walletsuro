@@ -31,7 +31,7 @@ func NewCreateWallet(ctx *middleware.Context, handler CreateWalletHandler) *Crea
 
 /* CreateWallet swagger:route POST /create wallet createWallet
 
-Create new wallte
+Create new wallet account
 
 */
 type CreateWallet struct {

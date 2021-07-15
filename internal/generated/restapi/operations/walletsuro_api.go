@@ -47,6 +47,9 @@ func NewWalletsuroAPI(spec *loads.Document) *WalletsuroAPI {
 		WalletCreateWalletHandler: wallet.CreateWalletHandlerFunc(func(params wallet.CreateWalletParams) middleware.Responder {
 			return middleware.NotImplemented("operation wallet.CreateWallet has not yet been implemented")
 		}),
+		WalletDepositHandler: wallet.DepositHandlerFunc(func(params wallet.DepositParams) middleware.Responder {
+			return middleware.NotImplemented("operation wallet.Deposit has not yet been implemented")
+		}),
 		WalletInfoHandler: wallet.InfoHandlerFunc(func(params wallet.InfoParams) middleware.Responder {
 			return middleware.NotImplemented("operation wallet.Info has not yet been implemented")
 		}),
@@ -88,6 +91,8 @@ type WalletsuroAPI struct {
 
 	// WalletCreateWalletHandler sets the operation handler for the create wallet operation
 	WalletCreateWalletHandler wallet.CreateWalletHandler
+	// WalletDepositHandler sets the operation handler for the deposit operation
+	WalletDepositHandler wallet.DepositHandler
 	// WalletInfoHandler sets the operation handler for the info operation
 	WalletInfoHandler wallet.InfoHandler
 
@@ -169,6 +174,9 @@ func (o *WalletsuroAPI) Validate() error {
 
 	if o.WalletCreateWalletHandler == nil {
 		unregistered = append(unregistered, "wallet.CreateWalletHandler")
+	}
+	if o.WalletDepositHandler == nil {
+		unregistered = append(unregistered, "wallet.DepositHandler")
 	}
 	if o.WalletInfoHandler == nil {
 		unregistered = append(unregistered, "wallet.InfoHandler")
@@ -265,6 +273,10 @@ func (o *WalletsuroAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/create"] = wallet.NewCreateWallet(o.context, o.WalletCreateWalletHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/deposit"] = wallet.NewDeposit(o.context, o.WalletDepositHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

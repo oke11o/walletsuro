@@ -52,7 +52,7 @@
         "tags": [
           "wallet"
         ],
-        "summary": "Create new wallte",
+        "summary": "Create new wallet account",
         "description": "",
         "operationId": "createWallet",
         "parameters": [
@@ -62,6 +62,49 @@
             "description": "",
             "type": "integer",
             "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/deposit": {
+      "post": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Deposit money to the wallet",
+        "description": "Deposit money to the wallet",
+        "operationId": "deposit",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "header",
+            "description": "",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "wallet_id": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         ],
         "responses": {

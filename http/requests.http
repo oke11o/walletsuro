@@ -1,0 +1,8 @@
+GET {{service}}/info
+Content-Type: application/json
+X-UserId: 1
+
+{
+  "userId": 600017692,
+  "itemId": 2518573204
+}
