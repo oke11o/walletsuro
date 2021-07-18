@@ -25,7 +25,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"golang.org/x/net/netutil"
 
-	"gitlab.com/oke11o/walletsuro/internal/generated/restapi/operations"
+	"github.com/oke11o/walletsuro/internal/generated/restapi/operations"
 )
 
 const (

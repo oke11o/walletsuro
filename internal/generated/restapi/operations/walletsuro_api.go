@@ -20,7 +20,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"gitlab.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
+	"github.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
 )
 
 // NewWalletsuroAPI creates a new Walletsuro instance

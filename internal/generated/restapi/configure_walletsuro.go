@@ -6,13 +6,13 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"gitlab.com/oke11o/walletsuro/internal/handler"
+	"github.com/oke11o/walletsuro/internal/handler"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 
-	"gitlab.com/oke11o/walletsuro/internal/generated/restapi/operations"
-	"gitlab.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
+	"github.com/oke11o/walletsuro/internal/generated/restapi/operations"
+	"github.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
 )
 
 //go:generate swagger generate server --target ../../generated --name Walletsuro --spec ../../../swagger.json --principal interface{}

@@ -1,4 +1,4 @@
-module gitlab.com/oke11o/walletsuro
+module github.com/oke11o/walletsuro
 
 go 1.16
 
