@@ -6,6 +6,11 @@ import (
 	"crypto/tls"
 	"net/http"
 
+	"github.com/oke11o/walletsuro/internal/service"
+
+	"github.com/oke11o/walletsuro/internal/config"
+	"github.com/oke11o/walletsuro/internal/repository"
+
 	"github.com/oke11o/walletsuro/internal/handler"
 
 	"github.com/go-openapi/errors"
@@ -40,7 +45,17 @@ func configureAPI(api *operations.WalletsuroAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 	api.CsvProducer = runtime.CSVProducer()
 
-	s := handler.NewServer()
+	cfg, err := config.NewFromEnv()
+	if err != nil {
+		panic(err)
+	}
+	repo, err := repository.New(cfg)
+	if err != nil {
+		panic(err)
+	}
+
+	service := service.New(repo)
+	s := handler.NewServer(service)
 
 	api.WalletInfoHandler = wallet.InfoHandlerFunc(s.Info)
 	api.WalletCreateWalletHandler = wallet.CreateWalletHandlerFunc(s.CreateWallet)

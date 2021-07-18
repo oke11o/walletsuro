@@ -19,6 +19,11 @@ const CreateWalletOKCode int = 200
 swagger:response createWalletOK
 */
 type CreateWalletOK struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *CreateWalletOKBody `json:"body,omitempty"`
 }
 
 // NewCreateWalletOK creates CreateWalletOK with default headers values
@@ -27,34 +32,49 @@ func NewCreateWalletOK() *CreateWalletOK {
 	return &CreateWalletOK{}
 }
 
+// WithPayload adds the payload to the create wallet o k response
+func (o *CreateWalletOK) WithPayload(payload *CreateWalletOKBody) *CreateWalletOK {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create wallet o k response
+func (o *CreateWalletOK) SetPayload(payload *CreateWalletOKBody) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateWalletOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(200)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
-// CreateWalletMethodNotAllowedCode is the HTTP code returned for type CreateWalletMethodNotAllowed
-const CreateWalletMethodNotAllowedCode int = 405
+// CreateWalletInternalServerErrorCode is the HTTP code returned for type CreateWalletInternalServerError
+const CreateWalletInternalServerErrorCode int = 500
 
-/*CreateWalletMethodNotAllowed Invalid input
+/*CreateWalletInternalServerError Internal server error
 
-swagger:response createWalletMethodNotAllowed
+swagger:response createWalletInternalServerError
 */
-type CreateWalletMethodNotAllowed struct {
+type CreateWalletInternalServerError struct {
 }
 
-// NewCreateWalletMethodNotAllowed creates CreateWalletMethodNotAllowed with default headers values
-func NewCreateWalletMethodNotAllowed() *CreateWalletMethodNotAllowed {
+// NewCreateWalletInternalServerError creates CreateWalletInternalServerError with default headers values
+func NewCreateWalletInternalServerError() *CreateWalletInternalServerError {
 
-	return &CreateWalletMethodNotAllowed{}
+	return &CreateWalletInternalServerError{}
 }
 
 // WriteResponse to the client
-func (o *CreateWalletMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *CreateWalletInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
-	rw.WriteHeader(405)
+	rw.WriteHeader(500)
 }

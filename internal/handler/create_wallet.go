@@ -1,12 +1,23 @@
 package handler
 
 import (
-	"github.com/go-openapi/runtime/middleware"
+	"log"
 
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
 )
 
 func (s *Server) CreateWallet(params wallet.CreateWalletParams) middleware.Responder {
-	//params.UserID
-	return middleware.NotImplemented("CreateWallet!!!")
+	wal, err := s.service.CreateWallet(params.HTTPRequest.Context(), params.XUserID)
+	if err != nil {
+		log.Println(err)
+		return wallet.NewCreateWalletInternalServerError()
+	}
+
+	return wallet.NewCreateWalletOK().WithPayload(
+		&wallet.CreateWalletOKBody{
+			WalletUUID: strfmt.UUID(wal.UUID.String()),
+		},
+	)
 }

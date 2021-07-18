@@ -60,10 +60,19 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
@@ -164,7 +173,8 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "schema": {}
           },
           "405": {
             "description": "Invalid input"
@@ -283,10 +293,19 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
@@ -387,7 +406,8 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "schema": {}
           },
           "405": {
             "description": "Invalid input"

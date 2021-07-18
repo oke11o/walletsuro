@@ -6,9 +6,14 @@ package wallet
 // Editing this file might prove futile when you re-run the generate command
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // CreateWalletHandlerFunc turns a function with the right signature into a create wallet handler
@@ -53,4 +58,63 @@ func (o *CreateWallet) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
+}
+
+// CreateWalletOKBody create wallet o k body
+//
+// swagger:model CreateWalletOKBody
+type CreateWalletOKBody struct {
+
+	// wallet uuid
+	// Format: uuid
+	WalletUUID strfmt.UUID `json:"wallet_uuid,omitempty"`
+}
+
+// Validate validates this create wallet o k body
+func (o *CreateWalletOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateWalletUUID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreateWalletOKBody) validateWalletUUID(formats strfmt.Registry) error {
+	if swag.IsZero(o.WalletUUID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createWalletOK"+"."+"wallet_uuid", "body", "uuid", o.WalletUUID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this create wallet o k body based on context it is used
+func (o *CreateWalletOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateWalletOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateWalletOKBody) UnmarshalBinary(b []byte) error {
+	var res CreateWalletOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
 }

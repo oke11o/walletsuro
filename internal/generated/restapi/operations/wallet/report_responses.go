@@ -19,6 +19,11 @@ const ReportOKCode int = 200
 swagger:response reportOK
 */
 type ReportOK struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewReportOK creates ReportOK with default headers values
@@ -27,12 +32,25 @@ func NewReportOK() *ReportOK {
 	return &ReportOK{}
 }
 
+// WithPayload adds the payload to the report o k response
+func (o *ReportOK) WithPayload(payload interface{}) *ReportOK {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the report o k response
+func (o *ReportOK) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *ReportOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(200)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // ReportMethodNotAllowedCode is the HTTP code returned for type ReportMethodNotAllowed

@@ -6,6 +6,10 @@ Payment system with custom user wallets
 
 Используем pattern money. Поэтому `amount `
 
+### Currency
+
+Для MVP работаем только с USD
+
 ## Примеры запросов
 
 В директории `http`

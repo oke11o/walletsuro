@@ -1,8 +1,9 @@
 package handler
 
 type Server struct {
+	service service
 }
 
-func NewServer() *Server {
-	return &Server{}
+func NewServer(s service) *Server {
+	return &Server{service: s}
 }
