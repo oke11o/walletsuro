@@ -1,18 +1,22 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE
+EXTENSION IF NOT EXISTS "uuid-ossp";
 
 create table wallets
 (
-    id serial
-        constraint wallets_pk
-            primary key,
-    user_id int not null,
-    wallet uuid not null,
-    amount int not null default 0
+    uuid    uuid not null,
+    user_id int  not null,
+    amount  int  not null default 0
 );
 
-create index wallets_user_id_index
-	on wallets (user_id);
+create
+unique index wallet_uuid_uindex
+	on wallets (uuid);
 
-create index wallets_wallet_index
-	on wallets (wallet);
+alter table wallets
+    add constraint wallets_pk
+        primary key (uuid);
+
+create
+index wallets_user_id_index
+	on wallets (user_id);
 

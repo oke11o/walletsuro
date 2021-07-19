@@ -23,6 +23,9 @@ migrate-up:
 migrate-down:
 	migrate -database ${POSTGRESQL_URL} -path migrations down
 
+migrate-create:
+	migrate create -ext sql -dir migrations -seq create_event_table
+
 # SWAGGER
 gen-server:
 	bin/swagger generate server -f ./swagger.json -t internal/generated -A walletsuro \

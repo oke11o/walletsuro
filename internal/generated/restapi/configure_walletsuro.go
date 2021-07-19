@@ -6,18 +6,14 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/oke11o/walletsuro/internal/service"
-
-	"github.com/oke11o/walletsuro/internal/config"
-	"github.com/oke11o/walletsuro/internal/repository"
-
-	"github.com/oke11o/walletsuro/internal/handler"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-
+	"github.com/oke11o/walletsuro/internal/config"
 	"github.com/oke11o/walletsuro/internal/generated/restapi/operations"
 	"github.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
+	"github.com/oke11o/walletsuro/internal/handler"
+	"github.com/oke11o/walletsuro/internal/repository"
+	"github.com/oke11o/walletsuro/internal/service"
 )
 
 //go:generate swagger generate server --target ../../generated --name Walletsuro --spec ../../../swagger.json --principal interface{}
@@ -54,7 +50,7 @@ func configureAPI(api *operations.WalletsuroAPI) http.Handler {
 		panic(err)
 	}
 
-	service := service.New(repo)
+	service := service.New(repo, repo, repo)
 	s := handler.NewServer(service)
 
 	api.WalletInfoHandler = wallet.InfoHandlerFunc(s.Info)
