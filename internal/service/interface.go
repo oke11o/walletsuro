@@ -10,18 +10,10 @@ import (
 	"github.com/oke11o/walletsuro/internal/model"
 )
 
-//type repo interface {
-//	CreateWallet(ctx context.Context, tx sqlx.ExecerContext, userID int64) (model.Wallet, error)
-//	Event(ctx context.Context, tx *sqlx.Tx, userID int64, targetWallet uuid.UUID, typ string, fromWallet *uuid.UUID) (int64, error)
-//	WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) error
-//}
-
-type repoWalletCreater interface {
+type repo interface {
 	CreateWallet(ctx context.Context, tx sqlx.ExecerContext, userID int64) (model.Wallet, error)
-}
-type repoEventCreater interface {
-	Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error
-}
-type repoWithTransactioner interface {
+	Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *model.Money, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error
 	WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) error
+	GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error)
+	SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) error
 }

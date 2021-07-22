@@ -19,4 +19,13 @@ X-UserID: 1
 
 {}
 
-###
+### deposit
+
+POST {{service}}/v1/deposit
+Content-Type: application/json
+X-UserID: 1
+
+{
+  "wallet_uuid": "d0b5faf5-b212-423a-b35f-6cbbbf23715c",
+  "amount": 123
+}

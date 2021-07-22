@@ -47,7 +47,7 @@
           "200": {
             "description": "ok"
           },
-          "405": {
+          "500": {
             "description": "Invalid input"
           }
         }
@@ -122,28 +122,22 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "required": [
-                "wallet_id",
-                "amount"
-              ],
-              "properties": {
-                "wallet_id": {
-                  "type": "string"
-                },
-                "amount": {
-                  "type": "integer"
-                }
-              }
+              "$ref": "#/definitions/wallet"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/wallet"
+            }
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "Invalid input",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
           }
         }
       }
@@ -229,12 +223,42 @@
           "200": {
             "description": "Success",
             "schema": {
-
             }
           },
           "405": {
             "description": "Invalid input"
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "wallet": {
+      "type": "object",
+      "required": [
+        "wallet_uuid",
+        "amount"
+      ],
+      "properties": {
+        "wallet_uuid": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": false
+        },
+        "amount": {
+          "type": "integer",
+          "x-nullable": false
+        }
+      }
+    },
+    "simpleResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
         }
       }
     }

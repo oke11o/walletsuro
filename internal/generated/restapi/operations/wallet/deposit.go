@@ -6,14 +6,9 @@ package wallet
 // Editing this file might prove futile when you re-run the generate command
 
 import (
-	"context"
 	"net/http"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // DepositHandlerFunc turns a function with the right signature into a deposit handler
@@ -60,77 +55,4 @@ func (o *Deposit) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
-}
-
-// DepositBody deposit body
-//
-// swagger:model DepositBody
-type DepositBody struct {
-
-	// amount
-	// Required: true
-	Amount *int64 `json:"amount"`
-
-	// wallet id
-	// Required: true
-	WalletID *string `json:"wallet_id"`
-}
-
-// Validate validates this deposit body
-func (o *DepositBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateAmount(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateWalletID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *DepositBody) validateAmount(formats strfmt.Registry) error {
-
-	if err := validate.Required("body"+"."+"amount", "body", o.Amount); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *DepositBody) validateWalletID(formats strfmt.Registry) error {
-
-	if err := validate.Required("body"+"."+"wallet_id", "body", o.WalletID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this deposit body based on context it is used
-func (o *DepositBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DepositBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DepositBody) UnmarshalBinary(b []byte) error {
-	var res DepositBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
 }

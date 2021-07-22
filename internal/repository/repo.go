@@ -41,15 +41,15 @@ func (Repo) CreateWallet(ctx context.Context, tx sqlx.ExecerContext, userID int6
 	return wallet, nil
 }
 
-func (Repo) Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error {
+func (Repo) Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *model.Money, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error {
 	args := make([]interface{}, 0, 3)
-	args = append(args, userID, targetWallet.String(), eventType)
+	args = append(args, userID, amount.Amount(), targetWallet.String(), eventType)
 	var sql string
 	if fromWallet != nil {
 		args = append(args, fromWallet.String())
-		sql = "INSERT INTO events (user_id, target_wallet_uuid, type, from_wallet_uuid) VALUES ($1, $2, $3, $4) RETURNING id"
+		sql = "INSERT INTO events (user_id, amount, target_wallet_uuid, type, from_wallet_uuid) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 	} else {
-		sql = "INSERT INTO events (user_id, target_wallet_uuid, type) VALUES ($1, $2, $3) RETURNING id"
+		sql = "INSERT INTO events (user_id, amount, target_wallet_uuid, type) VALUES ($1, $2, $3, $4) RETURNING id"
 	}
 
 	_, err := tx.ExecContext(ctx, sql, args...)
@@ -79,6 +79,25 @@ func (r *Repo) WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) 
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("committing tx: %w", err)
+	}
+	return nil
+}
+
+func (r *Repo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error) {
+	var val model.Wallet
+	s := "SELECT uuid, user_id, amount FROM wallets WHERE uuid=$1 FOR UPDATE"
+	if err := tx.GetContext(ctx, &val, s, uuid); err != nil {
+		return val, err
+	}
+
+	return val, nil
+}
+
+func (r *Repo) SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) error {
+	s := "INSERT INTO wallets (uuid, user_id, amount) VALUES ($1, $2, $3) ON CONFLICT (uuid) DO UPDATE SET amount = EXCLUDED.amount"
+	_, err := tx.ExecContext(ctx, s, wal.UUID.String(), wal.UserID, wal.Amount.Amount())
+	if err != nil {
+		return err
 	}
 	return nil
 }

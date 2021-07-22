@@ -103,28 +103,22 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "required": [
-                "wallet_id",
-                "amount"
-              ],
-              "properties": {
-                "amount": {
-                  "type": "integer"
-                },
-                "wallet_id": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/wallet"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/wallet"
+            }
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "Invalid input",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
           }
         }
       }
@@ -146,7 +140,7 @@ func init() {
           "200": {
             "description": "ok"
           },
-          "405": {
+          "500": {
             "description": "Invalid input"
           }
         }
@@ -235,6 +229,37 @@ func init() {
           "405": {
             "description": "Invalid input"
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "simpleResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer"
+        }
+      }
+    },
+    "wallet": {
+      "type": "object",
+      "required": [
+        "wallet_uuid",
+        "amount"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "x-nullable": false
+        },
+        "wallet_uuid": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": false
         }
       }
     }
@@ -336,28 +361,22 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "required": [
-                "wallet_id",
-                "amount"
-              ],
-              "properties": {
-                "amount": {
-                  "type": "integer"
-                },
-                "wallet_id": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/wallet"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/wallet"
+            }
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "Invalid input",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
           }
         }
       }
@@ -379,7 +398,7 @@ func init() {
           "200": {
             "description": "ok"
           },
-          "405": {
+          "500": {
             "description": "Invalid input"
           }
         }
@@ -468,6 +487,37 @@ func init() {
           "405": {
             "description": "Invalid input"
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "simpleResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer"
+        }
+      }
+    },
+    "wallet": {
+      "type": "object",
+      "required": [
+        "wallet_uuid",
+        "amount"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "x-nullable": false
+        },
+        "wallet_uuid": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": false
         }
       }
     }

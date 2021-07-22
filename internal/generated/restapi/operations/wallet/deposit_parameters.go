@@ -16,6 +16,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+
+	"github.com/oke11o/walletsuro/internal/generated/models"
 )
 
 // NewDepositParams creates a new DepositParams object
@@ -44,7 +46,7 @@ type DepositParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body DepositBody
+	Body *models.Wallet
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -62,7 +64,7 @@ func (o *DepositParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body DepositBody
+		var body models.Wallet
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))
@@ -81,7 +83,7 @@ func (o *DepositParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 			}
 
 			if len(res) == 0 {
-				o.Body = body
+				o.Body = &body
 			}
 		}
 	} else {

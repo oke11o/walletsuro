@@ -50,7 +50,7 @@ func configureAPI(api *operations.WalletsuroAPI) http.Handler {
 		panic(err)
 	}
 
-	service := service.New(repo, repo, repo)
+	service := service.New(repo)
 	s := handler.NewServer(service)
 
 	api.WalletInfoHandler = wallet.InfoHandlerFunc(s.Info)

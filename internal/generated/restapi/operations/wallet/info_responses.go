@@ -35,26 +35,26 @@ func (o *InfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer
 	rw.WriteHeader(200)
 }
 
-// InfoMethodNotAllowedCode is the HTTP code returned for type InfoMethodNotAllowed
-const InfoMethodNotAllowedCode int = 405
+// InfoInternalServerErrorCode is the HTTP code returned for type InfoInternalServerError
+const InfoInternalServerErrorCode int = 500
 
-/*InfoMethodNotAllowed Invalid input
+/*InfoInternalServerError Invalid input
 
-swagger:response infoMethodNotAllowed
+swagger:response infoInternalServerError
 */
-type InfoMethodNotAllowed struct {
+type InfoInternalServerError struct {
 }
 
-// NewInfoMethodNotAllowed creates InfoMethodNotAllowed with default headers values
-func NewInfoMethodNotAllowed() *InfoMethodNotAllowed {
+// NewInfoInternalServerError creates InfoInternalServerError with default headers values
+func NewInfoInternalServerError() *InfoInternalServerError {
 
-	return &InfoMethodNotAllowed{}
+	return &InfoInternalServerError{}
 }
 
 // WriteResponse to the client
-func (o *InfoMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *InfoInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
-	rw.WriteHeader(405)
+	rw.WriteHeader(500)
 }
