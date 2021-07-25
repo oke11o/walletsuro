@@ -115,7 +115,7 @@ func init() {
             }
           },
           "500": {
-            "description": "Invalid input",
+            "description": "Internal server error",
             "schema": {
               "$ref": "#/definitions/simpleResponse"
             }
@@ -141,7 +141,7 @@ func init() {
             "description": "ok"
           },
           "500": {
-            "description": "Invalid input"
+            "description": "Internal server error"
           }
         }
       }
@@ -150,7 +150,8 @@ func init() {
       "get": {
         "description": "Report account history",
         "produces": [
-          "text/csv"
+          "text/csv",
+          "application/json"
         ],
         "tags": [
           "wallet"
@@ -163,6 +164,21 @@ func init() {
             "name": "X-UserID",
             "in": "header",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "name": "date",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "deposit",
+              "transfer"
+            ],
+            "type": "string",
+            "name": "type",
+            "in": "query"
           }
         ],
         "responses": {
@@ -170,8 +186,11 @@ func init() {
             "description": "Success",
             "schema": {}
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
           }
         }
       }
@@ -247,7 +266,7 @@ func init() {
             }
           },
           "500": {
-            "description": "Invalid input",
+            "description": "Internal server error",
             "schema": {
               "$ref": "#/definitions/simpleResponse"
             }
@@ -396,7 +415,7 @@ func init() {
             }
           },
           "500": {
-            "description": "Invalid input",
+            "description": "Internal server error",
             "schema": {
               "$ref": "#/definitions/simpleResponse"
             }
@@ -422,7 +441,7 @@ func init() {
             "description": "ok"
           },
           "500": {
-            "description": "Invalid input"
+            "description": "Internal server error"
           }
         }
       }
@@ -431,6 +450,7 @@ func init() {
       "get": {
         "description": "Report account history",
         "produces": [
+          "application/json",
           "text/csv"
         ],
         "tags": [
@@ -444,6 +464,21 @@ func init() {
             "name": "X-UserID",
             "in": "header",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "name": "date",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "deposit",
+              "transfer"
+            ],
+            "type": "string",
+            "name": "type",
+            "in": "query"
           }
         ],
         "responses": {
@@ -451,8 +486,11 @@ func init() {
             "description": "Success",
             "schema": {}
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
           }
         }
       }
@@ -528,7 +566,7 @@ func init() {
             }
           },
           "500": {
-            "description": "Invalid input",
+            "description": "Internal server error",
             "schema": {
               "$ref": "#/definitions/simpleResponse"
             }

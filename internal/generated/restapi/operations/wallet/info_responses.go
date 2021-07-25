@@ -38,7 +38,7 @@ func (o *InfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer
 // InfoInternalServerErrorCode is the HTTP code returned for type InfoInternalServerError
 const InfoInternalServerErrorCode int = 500
 
-/*InfoInternalServerError Invalid input
+/*InfoInternalServerError Internal server error
 
 swagger:response infoInternalServerError
 */

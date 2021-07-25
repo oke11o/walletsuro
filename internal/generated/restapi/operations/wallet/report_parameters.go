@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -37,6 +38,14 @@ type ReportParams struct {
 	  In: header
 	*/
 	XUserID int64
+	/*
+	  In: query
+	*/
+	Date *strfmt.Date
+	/*
+	  In: query
+	*/
+	Type *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -48,7 +57,19 @@ func (o *ReportParams) BindRequest(r *http.Request, route *middleware.MatchedRou
 
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
 	if err := o.bindXUserID(r.Header[http.CanonicalHeaderKey("X-UserID")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qDate, qhkDate, _ := qs.GetOK("date")
+	if err := o.bindDate(qDate, qhkDate, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qType, qhkType, _ := qs.GetOK("type")
+	if err := o.bindType(qType, qhkType, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -78,6 +99,75 @@ func (o *ReportParams) bindXUserID(rawData []string, hasKey bool, formats strfmt
 		return errors.InvalidType("X-UserID", "header", "int64", raw)
 	}
 	o.XUserID = value
+
+	return nil
+}
+
+// bindDate binds and validates parameter Date from query.
+func (o *ReportParams) bindDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: date
+	value, err := formats.Parse("date", raw)
+	if err != nil {
+		return errors.InvalidType("date", "query", "strfmt.Date", raw)
+	}
+	o.Date = (value.(*strfmt.Date))
+
+	if err := o.validateDate(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateDate carries on validations for parameter Date
+func (o *ReportParams) validateDate(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("date", "query", "date", o.Date.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindType binds and validates parameter Type from query.
+func (o *ReportParams) bindType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.Type = &raw
+
+	if err := o.validateType(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateType carries on validations for parameter Type
+func (o *ReportParams) validateType(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("type", "query", *o.Type, []interface{}{"deposit", "transfer"}, true); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 	uuid "github.com/google/uuid"
 	model "github.com/oke11o/walletsuro/internal/model"
 	reflect "reflect"
+	time "time"
 )
 
 // Mockservice is a mock of service interface
@@ -78,4 +79,19 @@ func (m *Mockservice) Transfer(ctx context.Context, userID int64, fromWalletUUID
 func (mr *MockserviceMockRecorder) Transfer(ctx, userID, fromWalletUUID, toWalletUUID, amount interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transfer", reflect.TypeOf((*Mockservice)(nil).Transfer), ctx, userID, fromWalletUUID, toWalletUUID, amount)
+}
+
+// Report mocks base method
+func (m *Mockservice) Report(ctx context.Context, userID int64, t *string, date *time.Time) ([]model.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Report", ctx, userID, t, date)
+	ret0, _ := ret[0].([]model.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Report indicates an expected call of Report
+func (mr *MockserviceMockRecorder) Report(ctx, userID, t, date interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Report", reflect.TypeOf((*Mockservice)(nil).Report), ctx, userID, t, date)
 }

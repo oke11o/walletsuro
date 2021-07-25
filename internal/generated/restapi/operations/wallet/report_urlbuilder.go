@@ -9,11 +9,18 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+
+	"github.com/go-openapi/strfmt"
 )
 
 // ReportURL generates an URL for the report operation
 type ReportURL struct {
+	Date *strfmt.Date
+	Type *string
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +49,26 @@ func (o *ReportURL) Build() (*url.URL, error) {
 		_basePath = "/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var dateQ string
+	if o.Date != nil {
+		dateQ = o.Date.String()
+	}
+	if dateQ != "" {
+		qs.Set("date", dateQ)
+	}
+
+	var typeVarQ string
+	if o.Type != nil {
+		typeVarQ = *o.Type
+	}
+	if typeVarQ != "" {
+		qs.Set("type", typeVarQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

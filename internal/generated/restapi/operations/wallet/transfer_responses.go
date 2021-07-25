@@ -148,7 +148,7 @@ func (o *TransferForbidden) WriteResponse(rw http.ResponseWriter, producer runti
 // TransferInternalServerErrorCode is the HTTP code returned for type TransferInternalServerError
 const TransferInternalServerErrorCode int = 500
 
-/*TransferInternalServerError Invalid input
+/*TransferInternalServerError Internal server error
 
 swagger:response transferInternalServerError
 */

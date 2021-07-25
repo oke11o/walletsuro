@@ -4,6 +4,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -18,4 +19,5 @@ type repo interface {
 	GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error)
 	SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) error
 	SaveWallets(ctx context.Context, tx *sqlx.Tx, wallet model.Wallet, wallet2 model.Wallet) error
+	FindEvents(ctx context.Context, id int64, t *string, date *time.Time) ([]model.Event, error)
 }

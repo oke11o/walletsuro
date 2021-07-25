@@ -9,6 +9,8 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
+
+	"github.com/oke11o/walletsuro/internal/generated/models"
 )
 
 // ReportOKCode is the HTTP code returned for type ReportOK
@@ -53,26 +55,46 @@ func (o *ReportOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produc
 	}
 }
 
-// ReportMethodNotAllowedCode is the HTTP code returned for type ReportMethodNotAllowed
-const ReportMethodNotAllowedCode int = 405
+// ReportInternalServerErrorCode is the HTTP code returned for type ReportInternalServerError
+const ReportInternalServerErrorCode int = 500
 
-/*ReportMethodNotAllowed Invalid input
+/*ReportInternalServerError Internal server error
 
-swagger:response reportMethodNotAllowed
+swagger:response reportInternalServerError
 */
-type ReportMethodNotAllowed struct {
+type ReportInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *models.SimpleResponse `json:"body,omitempty"`
 }
 
-// NewReportMethodNotAllowed creates ReportMethodNotAllowed with default headers values
-func NewReportMethodNotAllowed() *ReportMethodNotAllowed {
+// NewReportInternalServerError creates ReportInternalServerError with default headers values
+func NewReportInternalServerError() *ReportInternalServerError {
 
-	return &ReportMethodNotAllowed{}
+	return &ReportInternalServerError{}
+}
+
+// WithPayload adds the payload to the report internal server error response
+func (o *ReportInternalServerError) WithPayload(payload *models.SimpleResponse) *ReportInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the report internal server error response
+func (o *ReportInternalServerError) SetPayload(payload *models.SimpleResponse) {
+	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *ReportMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *ReportInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(405)
+	rw.WriteHeader(500)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }

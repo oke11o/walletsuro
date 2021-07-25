@@ -48,7 +48,7 @@
             "description": "ok"
           },
           "500": {
-            "description": "Invalid input"
+            "description": "Internal server error"
           }
         }
       }
@@ -134,7 +134,7 @@
             }
           },
           "500": {
-            "description": "Invalid input",
+            "description": "Internal server error",
             "schema": {
               "$ref": "#/definitions/simpleResponse"
             }
@@ -214,7 +214,7 @@
             }
           },
           "500": {
-            "description": "Invalid input",
+            "description": "Internal server error",
             "schema": {
               "$ref": "#/definitions/simpleResponse"
             }
@@ -237,19 +237,39 @@
             "description": "",
             "type": "integer",
             "required": true
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "",
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "",
+            "type": "string",
+            "enum": [
+              "deposit",
+              "transfer"
+            ]
           }
         ],
         "produces": [
-          "text/csv"
+          "text/csv",
+          "application/json"
         ],
         "responses": {
           "200": {
             "description": "Success",
-            "schema": {
-            }
+            "schema": {}
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
           }
         }
       }

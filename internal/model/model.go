@@ -76,8 +76,16 @@ func (m *Money) Scan(raw interface{}) error {
 type Event struct {
 	ID               int64
 	UserID           int64
+	Amount           *Money
 	TargetWalletUUID uuid.UUID
 	FromWalletUUID   uuid.UUID
 	Type             string
 	Date             time.Time
+}
+
+type ReportData struct {
+	WalletUUID string `csv:"wallet_uuid"`
+	Date       string `csv:"date"`
+	Type       string `csv:"type"`
+	Amount     string `csv:"amount"`
 }

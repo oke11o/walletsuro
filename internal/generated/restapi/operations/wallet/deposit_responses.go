@@ -60,7 +60,7 @@ func (o *DepositOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 // DepositInternalServerErrorCode is the HTTP code returned for type DepositInternalServerError
 const DepositInternalServerErrorCode int = 500
 
-/*DepositInternalServerError Invalid input
+/*DepositInternalServerError Internal server error
 
 swagger:response depositInternalServerError
 */

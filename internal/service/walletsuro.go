@@ -3,18 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/oke11o/walletsuro/internal/model"
 )
-
-type eventType string
-
-const createType = "create"
-const depositType = "deposit"
-const transferType = "transfer"
 
 func New(repo repo) *Service {
 	return &Service{repo: repo}
@@ -32,7 +27,7 @@ func (s Service) CreateWallet(ctx context.Context, userID int64) (model.Wallet, 
 		if err != nil {
 			return err
 		}
-		return s.repo.Event(ctx, tx, userID, model.NewMoney(0, model.DefaultCurrency), wal.UUID, createType, nil)
+		return s.repo.Event(ctx, tx, userID, model.NewMoney(0, model.DefaultCurrency), wal.UUID, model.CreateType, nil)
 	})
 	if err != nil {
 		return wal, fmt.Errorf("cant create wallet %w", err)
@@ -57,7 +52,7 @@ func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amou
 			return err
 		}
 
-		return s.repo.Event(ctx, tx, userID, amount, wal.UUID, depositType, nil)
+		return s.repo.Event(ctx, tx, userID, amount, wal.UUID, model.DepositType, nil)
 	})
 	if err != nil {
 		return model.Wallet{}, fmt.Errorf("cant create wallet %w", err)
@@ -91,13 +86,32 @@ func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID,
 			return err
 		}
 
-		return s.repo.Event(ctx, tx, userID, amount, fromWallet.UUID, transferType, &toWallet.UUID)
+		return s.repo.Event(ctx, tx, userID, amount, fromWallet.UUID, model.TransferType, &toWallet.UUID)
 	})
 	if err != nil {
 		return model.Wallet{}, fmt.Errorf("cant create wallet %w", err)
 	}
 
 	return fromWallet, nil
+}
+
+func (s Service) Report(ctx context.Context, userID int64, t *string, date *time.Time) ([]model.ReportData, error) {
+	res, err := s.repo.FindEvents(ctx, userID, t, date)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]model.ReportData, 0, len(res))
+	for _, r := range res {
+		result = append(result, model.ReportData{
+			WalletUUID: r.TargetWalletUUID.String(),
+			Date:       r.Date.Format(time.RFC3339),
+			Type:       r.Type,
+			Amount:     r.Amount.Money.Display(),
+		})
+	}
+
+	return result, nil
 }
 
 func (s Service) checkWalletPermission(wal model.Wallet, userID int64, amount *model.Money) error {

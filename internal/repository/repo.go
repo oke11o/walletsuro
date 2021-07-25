@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -131,4 +133,65 @@ func (r *Repo) SaveWallets(ctx context.Context, tx *sqlx.Tx, wal model.Wallet, w
 		return err
 	}
 	return nil
+}
+
+type event struct {
+	ID               int64     `db:"id"`
+	TargetWalletUUID string    `db:"target_wallet_uuid"`
+	WalletUUID       *string   `db:"from_wallet_uuid"`
+	Amount           int64     `db:"amount"`
+	Date             time.Time `db:"date"`
+	Type             string    `db:"type"`
+}
+
+func (r *Repo) FindEvents(ctx context.Context, userID int64, t *string, date *time.Time) ([]model.Event, error) {
+	agrs := []interface{}{userID}
+	var sqlBuilder strings.Builder
+	sqlBuilder.WriteString("SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE user_id=?")
+	if t != nil {
+		sqlBuilder.WriteString(" AND type=?")
+		agrs = append(agrs, *t)
+	} else {
+		sqlBuilder.WriteString(" AND type IN (?,?)")
+		agrs = append(agrs, model.TransferType, model.DepositType)
+	}
+	if date != nil {
+		sqlBuilder.WriteString(" AND date>=? AND date<?")
+		agrs = append(agrs, date.Format("2006-01-02"), date.Add(time.Hour*24).Format("2006-01-02"))
+	}
+	rows, err := r.db.QueryxContext(ctx, r.db.Rebind(sqlBuilder.String()), agrs...)
+	if err != nil {
+		return nil, err
+	}
+	var result []model.Event
+	for rows.Next() {
+		var dest event
+		err = rows.StructScan(&dest)
+		if err != nil {
+			return nil, err
+		}
+		TargetWalletUUID, err := uuid.Parse(dest.TargetWalletUUID)
+		if err != nil {
+			return nil, err
+		}
+		var FromWalletUUID uuid.UUID
+		if dest.WalletUUID != nil {
+			FromWalletUUID, err = uuid.Parse(*dest.WalletUUID)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		result = append(result, model.Event{
+			ID:               0,
+			UserID:           userID,
+			Amount:           model.NewMoney(dest.Amount, model.DefaultCurrency),
+			TargetWalletUUID: TargetWalletUUID,
+			FromWalletUUID:   FromWalletUUID,
+			Type:             dest.Type,
+			Date:             dest.Date,
+		})
+	}
+
+	return result, nil
 }

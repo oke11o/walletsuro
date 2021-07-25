@@ -7,7 +7,7 @@ X-UserID: 1
 
 ###
 
-GET {{service}}/v1/report
+GET {{service}}/v1/report?date=2021-07-25
 Content-Type: application/json
 X-UserID: 1
 
