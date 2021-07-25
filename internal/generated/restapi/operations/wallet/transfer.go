@@ -69,15 +69,17 @@ type TransferBody struct {
 
 	// amount
 	// Required: true
-	Amount *int64 `json:"amount"`
+	Amount int64 `json:"amount"`
 
-	// from wallet id
+	// from wallet uuid
 	// Required: true
-	FromWalletID *string `json:"from_wallet_id"`
+	// Format: uuid
+	FromWalletUUID strfmt.UUID `json:"from_wallet_uuid"`
 
-	// to wallet id
+	// to wallet uuid
 	// Required: true
-	ToWalletID *string `json:"to_wallet_id"`
+	// Format: uuid
+	ToWalletUUID strfmt.UUID `json:"to_wallet_uuid"`
 }
 
 // Validate validates this transfer body
@@ -88,11 +90,11 @@ func (o *TransferBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateFromWalletID(formats); err != nil {
+	if err := o.validateFromWalletUUID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateToWalletID(formats); err != nil {
+	if err := o.validateToWalletUUID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -104,25 +106,33 @@ func (o *TransferBody) Validate(formats strfmt.Registry) error {
 
 func (o *TransferBody) validateAmount(formats strfmt.Registry) error {
 
-	if err := validate.Required("body"+"."+"amount", "body", o.Amount); err != nil {
+	if err := validate.Required("body"+"."+"amount", "body", int64(o.Amount)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *TransferBody) validateFromWalletID(formats strfmt.Registry) error {
+func (o *TransferBody) validateFromWalletUUID(formats strfmt.Registry) error {
 
-	if err := validate.Required("body"+"."+"from_wallet_id", "body", o.FromWalletID); err != nil {
+	if err := validate.Required("body"+"."+"from_wallet_uuid", "body", strfmt.UUID(o.FromWalletUUID)); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("body"+"."+"from_wallet_uuid", "body", "uuid", o.FromWalletUUID.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *TransferBody) validateToWalletID(formats strfmt.Registry) error {
+func (o *TransferBody) validateToWalletUUID(formats strfmt.Registry) error {
 
-	if err := validate.Required("body"+"."+"to_wallet_id", "body", o.ToWalletID); err != nil {
+	if err := validate.Required("body"+"."+"to_wallet_uuid", "body", strfmt.UUID(o.ToWalletUUID)); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("body"+"."+"to_wallet_uuid", "body", "uuid", o.ToWalletUUID.String(), formats); err != nil {
 		return err
 	}
 

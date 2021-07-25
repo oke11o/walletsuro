@@ -204,19 +204,24 @@ func init() {
             "schema": {
               "type": "object",
               "required": [
-                "from_wallet_id",
-                "to_wallet_id",
+                "from_wallet_uuid",
+                "to_wallet_uuid",
                 "amount"
               ],
               "properties": {
                 "amount": {
-                  "type": "integer"
+                  "type": "integer",
+                  "x-nullable": false
                 },
-                "from_wallet_id": {
-                  "type": "string"
+                "from_wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
                 },
-                "to_wallet_id": {
-                  "type": "string"
+                "to_wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
                 }
               }
             }
@@ -224,10 +229,28 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/wallet"
+            }
           },
-          "405": {
-            "description": "Invalid input"
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          },
+          "500": {
+            "description": "Invalid input",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
           }
         }
       }
@@ -462,19 +485,24 @@ func init() {
             "schema": {
               "type": "object",
               "required": [
-                "from_wallet_id",
-                "to_wallet_id",
+                "from_wallet_uuid",
+                "to_wallet_uuid",
                 "amount"
               ],
               "properties": {
                 "amount": {
-                  "type": "integer"
+                  "type": "integer",
+                  "x-nullable": false
                 },
-                "from_wallet_id": {
-                  "type": "string"
+                "from_wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
                 },
-                "to_wallet_id": {
-                  "type": "string"
+                "to_wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
                 }
               }
             }
@@ -482,10 +510,28 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/wallet"
+            }
           },
-          "405": {
-            "description": "Invalid input"
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          },
+          "500": {
+            "description": "Invalid input",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
           }
         }
       }

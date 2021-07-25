@@ -14,6 +14,7 @@ type eventType string
 
 const createType = "create"
 const depositType = "deposit"
+const transferType = "transfer"
 
 func New(repo repo) *Service {
 	return &Service{repo: repo}
@@ -63,4 +64,52 @@ func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amou
 	}
 
 	return wal, nil
+}
+
+func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID, toUuid uuid.UUID, amount *model.Money) (model.Wallet, error) {
+	var fromWallet model.Wallet
+	err := s.repo.WithTransaction(ctx, func(tx *sqlx.Tx) error {
+		var err error
+		var toWallet model.Wallet
+		fromWallet, toWallet, err = s.repo.GetWalletsWithBlock(ctx, tx, fromUuid, toUuid)
+		if err != nil {
+			return err
+		}
+		err = s.checkWalletPermission(fromWallet, userID, amount)
+		if err != nil {
+			return err
+		}
+
+		if err := fromWallet.Withdraw(amount); err != nil {
+			return err
+		}
+		if err := toWallet.Deposit(amount); err != nil {
+			return err
+		}
+
+		if err := s.repo.SaveWallets(ctx, tx, fromWallet, toWallet); err != nil {
+			return err
+		}
+
+		return s.repo.Event(ctx, tx, userID, amount, fromWallet.UUID, transferType, &toWallet.UUID)
+	})
+	if err != nil {
+		return model.Wallet{}, fmt.Errorf("cant create wallet %w", err)
+	}
+
+	return fromWallet, nil
+}
+
+func (s Service) checkWalletPermission(wal model.Wallet, userID int64, amount *model.Money) error {
+	if wal.UserID != userID {
+		return model.ErrPermissionDeniedWallet
+	}
+	less, err := wal.Amount.LessThan(&amount.Money)
+	if err != nil {
+		return model.ErrPermissionDeniedWallet
+	}
+	if less {
+		return model.ErrPermissionDeniedWallet
+	}
+	return nil
 }

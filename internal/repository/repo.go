@@ -85,7 +85,7 @@ func (r *Repo) WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) 
 
 func (r *Repo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error) {
 	var val model.Wallet
-	s := "SELECT uuid, user_id, amount FROM wallets WHERE uuid=$1 FOR UPDATE"
+	s := "SELECT uuid, user_id, amount FROM wallets WHERE uuid=$1 FOR UPDATE SKIP LOCKED"
 	if err := tx.GetContext(ctx, &val, s, uuid); err != nil {
 		return val, err
 	}
@@ -93,9 +93,40 @@ func (r *Repo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UU
 	return val, nil
 }
 
+func (r *Repo) GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error) {
+	var val []model.Wallet
+	s := "SELECT uuid, user_id, amount FROM wallets WHERE uuid=$1 OR uuid=$2 FOR UPDATE SKIP LOCKED"
+	if err := tx.SelectContext(ctx, &val, s, fromUUID, toUUID); err != nil {
+		return model.Wallet{}, model.Wallet{}, err
+	}
+	if len(val) != 2 {
+		return model.Wallet{}, model.Wallet{}, errors.New("cant get both wallets")
+	}
+	var from, to model.Wallet
+	if fromUUID == val[0].UUID {
+		from = val[0]
+		to = val[1]
+	} else {
+		to = val[0]
+		from = val[1]
+	}
+
+	return from, to, nil
+}
+
 func (r *Repo) SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) error {
 	s := "INSERT INTO wallets (uuid, user_id, amount) VALUES ($1, $2, $3) ON CONFLICT (uuid) DO UPDATE SET amount = EXCLUDED.amount"
 	_, err := tx.ExecContext(ctx, s, wal.UUID.String(), wal.UserID, wal.Amount.Amount())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// TODO: refactoring
+func (r *Repo) SaveWallets(ctx context.Context, tx *sqlx.Tx, wal model.Wallet, wal2 model.Wallet) error {
+	s := "INSERT INTO wallets (uuid, user_id, amount) VALUES ($1, $2, $3),($4,$5,$6) ON CONFLICT (uuid) DO UPDATE SET amount = EXCLUDED.amount"
+	_, err := tx.ExecContext(ctx, s, wal.UUID.String(), wal.UserID, wal.Amount.Amount(), wal2.UUID.String(), wal2.UserID, wal2.Amount.Amount())
 	if err != nil {
 		return err
 	}

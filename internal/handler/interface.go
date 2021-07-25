@@ -12,5 +12,6 @@ import (
 
 type service interface {
 	CreateWallet(ctx context.Context, userID int64) (model.Wallet, error)
-	Deposit(ctx context.Context, id int64, uuid uuid.UUID, amount *model.Money) (model.Wallet, error)
+	Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amount *model.Money) (model.Wallet, error)
+	Transfer(ctx context.Context, userID int64, fromWalletUUID uuid.UUID, toWalletUUID uuid.UUID, amount *model.Money) (model.Wallet, error)
 }

@@ -6,37 +6,37 @@ package handler
 
 import (
 	context "context"
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	model "github.com/oke11o/walletsuro/internal/model"
+	reflect "reflect"
 )
 
-// Mockrepo is a mock of repo interface
-type Mockrepo struct {
+// Mockservice is a mock of service interface
+type Mockservice struct {
 	ctrl     *gomock.Controller
-	recorder *MockrepoMockRecorder
+	recorder *MockserviceMockRecorder
 }
 
-// MockrepoMockRecorder is the mock recorder for Mockrepo
-type MockrepoMockRecorder struct {
-	mock *Mockrepo
+// MockserviceMockRecorder is the mock recorder for Mockservice
+type MockserviceMockRecorder struct {
+	mock *Mockservice
 }
 
-// NewMockrepo creates a new mock instance
-func NewMockrepo(ctrl *gomock.Controller) *Mockrepo {
-	mock := &Mockrepo{ctrl: ctrl}
-	mock.recorder = &MockrepoMockRecorder{mock}
+// NewMockservice creates a new mock instance
+func NewMockservice(ctrl *gomock.Controller) *Mockservice {
+	mock := &Mockservice{ctrl: ctrl}
+	mock.recorder = &MockserviceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *Mockrepo) EXPECT() *MockrepoMockRecorder {
+func (m *Mockservice) EXPECT() *MockserviceMockRecorder {
 	return m.recorder
 }
 
 // CreateWallet mocks base method
-func (m *Mockrepo) CreateWallet(ctx context.Context, userID int64) (model.Wallet, error) {
+func (m *Mockservice) CreateWallet(ctx context.Context, userID int64) (model.Wallet, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateWallet", ctx, userID)
 	ret0, _ := ret[0].(model.Wallet)
@@ -45,7 +45,37 @@ func (m *Mockrepo) CreateWallet(ctx context.Context, userID int64) (model.Wallet
 }
 
 // CreateWallet indicates an expected call of CreateWallet
-func (mr *MockrepoMockRecorder) CreateWallet(ctx, userID interface{}) *gomock.Call {
+func (mr *MockserviceMockRecorder) CreateWallet(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWallet", reflect.TypeOf((*Mockrepo)(nil).CreateWallet), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWallet", reflect.TypeOf((*Mockservice)(nil).CreateWallet), ctx, userID)
+}
+
+// Deposit mocks base method
+func (m *Mockservice) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amount *model.Money) (model.Wallet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Deposit", ctx, userID, uuid, amount)
+	ret0, _ := ret[0].(model.Wallet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Deposit indicates an expected call of Deposit
+func (mr *MockserviceMockRecorder) Deposit(ctx, userID, uuid, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deposit", reflect.TypeOf((*Mockservice)(nil).Deposit), ctx, userID, uuid, amount)
+}
+
+// Transfer mocks base method
+func (m *Mockservice) Transfer(ctx context.Context, userID int64, fromWalletUUID, toWalletUUID uuid.UUID, amount *model.Money) (model.Wallet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Transfer", ctx, userID, fromWalletUUID, toWalletUUID, amount)
+	ret0, _ := ret[0].(model.Wallet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Transfer indicates an expected call of Transfer
+func (mr *MockserviceMockRecorder) Transfer(ctx, userID, fromWalletUUID, toWalletUUID, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transfer", reflect.TypeOf((*Mockservice)(nil).Transfer), ctx, userID, fromWalletUUID, toWalletUUID, amount)
 }

@@ -15,5 +15,7 @@ type repo interface {
 	Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *model.Money, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error
 	WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) error
 	GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error)
+	GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error)
 	SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) error
+	SaveWallets(ctx context.Context, tx *sqlx.Tx, wallet model.Wallet, wallet2 model.Wallet) error
 }

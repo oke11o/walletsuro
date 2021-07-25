@@ -29,3 +29,15 @@ X-UserID: 1
   "wallet_uuid": "d0b5faf5-b212-423a-b35f-6cbbbf23715c",
   "amount": 123
 }
+
+### transfer
+
+POST {{service}}/v1/transfer
+Content-Type: application/json
+X-UserID: 1
+
+{
+  "from_wallet_uuid": "d0b5faf5-b212-423a-b35f-6cbbbf23715c",
+  "to_wallet_uuid": "8ac77032-45a9-485d-a970-55fae77fd173",
+  "amount" : 123
+}
