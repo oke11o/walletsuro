@@ -26,6 +26,11 @@ migrate-down:
 migrate-create:
 	migrate create -ext sql -dir migrations -seq create_event_table
 
+# install tools binary: linter, mockgen, etc.
+.PHONY: tools
+tools:
+	cd tools && go generate -tags tools
+
 # SWAGGER
 gen-server:
 	bin/swagger generate server -f ./swagger.json -t internal/generated -A walletsuro \
@@ -34,4 +39,7 @@ gen-server:
 #
 test:
 	go test -race ./...
+
+lint:
+	bin/golangci-lint run
 

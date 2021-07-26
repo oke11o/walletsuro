@@ -32,3 +32,21 @@ PORT - на каком порту поднимать приложение
 # Event
 
 1 операции соответствует 1 запись в таблице. Поэтому при получении Report'a придется делать запрос по кошельку From=wallet OR To=wallet. 
+
+# Tools
+
+Генерим в директорию ./bin все необходимые утилиты
+
+- mockgen
+- goswagger
+- migrate
+
+```makefile
+make tools
+```
+
+# Linter
+
+```makefile
+make lint
+```

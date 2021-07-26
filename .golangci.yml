@@ -1,0 +1,89 @@
+run:
+  deadline: 3m
+  issues-exit-code: 1
+  tests: true
+  skip-dirs:
+    - internal/generated
+
+
+# output configuration options
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+
+# all available settings of specific linters
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
+  govet:
+    check-shadowing: false
+    settings:
+      printf: # analyzer name, run `go tool vet help` to see all analyzers
+        funcs: # run `go tool vet help printf` to see available settings for `printf` analyzer
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: bb.delivery-club.ru/cat/catalog
+  gocyclo:
+    min-complexity: 14
+  dupl:
+    # tokens count to trigger issue
+    threshold: 150
+  goconst:
+    # minimal length of string constant, 3 by default
+    min-len: 3
+    # minimal occurrences count to trigger, 3 by default
+    min-occurrences: 3
+  misspell:
+    locale: US
+  unused:
+    check-exported: false
+  unparam:
+    check-exported: true
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: false
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gosimple
+    - structcheck
+    - varcheck
+    - deadcode
+    - gosec
+    - unconvert
+    - goconst
+    - misspell
+    - unparam
+    - prealloc
+    - gocritic
+    - dupl
+    - gocyclo
+    - goimports
+  fast: false
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+
+  max-per-linter: 0
+  max-same-issues: 0
+  new: false
