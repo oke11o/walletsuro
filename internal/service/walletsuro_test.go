@@ -22,7 +22,7 @@ import (
 	"github.com/oke11o/walletsuro/internal/repository"
 )
 
-type userRepoSuite struct {
+type walletsuroSuite struct {
 	suite.Suite
 	dbx      *sqlx.DB
 	fixtures *testfixtures.Loader
@@ -34,48 +34,48 @@ func Test_RepoSuite(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
-	suite.Run(t, new(userRepoSuite))
+	suite.Run(t, new(walletsuroSuite))
 }
 
-func (rs *userRepoSuite) SetupSuite() {
+func (suite *walletsuroSuite) SetupSuite() {
 	dbCfg, err := cfg()
-	require.NoError(rs.T(), err)
-	rs.cfg = dbCfg
+	require.NoError(suite.T(), err)
+	suite.cfg = dbCfg
 
-	rs.T().Logf("DB_DSN: %s", dbCfg)
+	suite.T().Logf("DB_DSN: %s", dbCfg)
 
 	dbx, err := sqlx.Open("postgres", dbCfg.PgDSN)
-	require.NoError(rs.T(), err)
-	rs.dbx = dbx
+	require.NoError(suite.T(), err)
+	suite.dbx = dbx
 
 	// migrations
 	driver, err := postgres.WithInstance(dbx.DB, &postgres.Config{})
-	require.NoError(rs.T(), err)
+	require.NoError(suite.T(), err)
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://../../migrations",
 		dbCfg.DbName,
 		driver,
 	)
-	require.NoError(rs.T(), err)
+	require.NoError(suite.T(), err)
 
 	// TODO: странное дело. Если надо выполнить миграции, то тут ок.
 	// Если же миграции уже накатили, тут получаем os.ErrNotExist.
 	// Стоит разобраться
 	_ = m.Steps(2)
-	//require.NoError(rs.T(), err)
+	//require.NoError(suite.T(), err)
 
 	//service
 	r, err := repository.New(dbCfg)
-	require.NoError(rs.T(), err)
-	rs.service = New(r)
+	require.NoError(suite.T(), err)
+	suite.service = New(r)
 
 	// fixtures
-	rs.fixtures, err = testfixtures.New(
+	suite.fixtures, err = testfixtures.New(
 		testfixtures.Dialect("postgres"),
-		testfixtures.Database(rs.dbx.DB),
-		testfixtures.Directory("testdata/fixtures"),
+		testfixtures.Database(suite.dbx.DB),
+		testfixtures.Directory("testdata/fixtures/base"),
 	)
-	rs.Require().NoError(err)
+	suite.Require().NoError(err)
 }
 
 func cfg() (config.Config, error) {
@@ -92,27 +92,27 @@ func cfg() (config.Config, error) {
 	return c, nil
 }
 
-func (rs *userRepoSuite) SetupTest() {
-	err := rs.fixtures.Load()
-	rs.Require().NoError(err)
+func (suite *walletsuroSuite) SetupTest() {
+	err := suite.fixtures.Load()
+	suite.Require().NoError(err)
 }
 
-func (rs *userRepoSuite) Test_CreateWallet() {
-	wallet, err := rs.service.CreateWallet(context.Background(), 1)
-	rs.Require().NoError(err)
+func (suite *walletsuroSuite) Test_CreateWallet() {
+	wallet, err := suite.service.CreateWallet(context.Background(), 1)
+	suite.Require().NoError(err)
 	expected := model.Wallet{
 		UUID:   wallet.UUID,
 		UserID: 1,
 	}
-	rs.Equal(expected, wallet)
+	suite.Equal(expected, wallet)
 
-	wallet2, err := rs.service.CreateWallet(context.Background(), 2)
-	rs.Require().NoError(err)
+	wallet2, err := suite.service.CreateWallet(context.Background(), 2)
+	suite.Require().NoError(err)
 	expected2 := model.Wallet{
 		UUID:   wallet2.UUID,
 		UserID: 2,
 	}
-	rs.Equal(expected2, wallet2)
+	suite.Equal(expected2, wallet2)
 
 	// check events
 	type event struct {
@@ -125,33 +125,33 @@ func (rs *userRepoSuite) Test_CreateWallet() {
 	}
 	var events []event
 	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1"
-	err = rs.dbx.Select(&events, sql, "create")
-	rs.Require().NoError(err)
-	rs.Require().Len(events, 4)
+	err = suite.dbx.Select(&events, sql, "create")
+	suite.Require().NoError(err)
+	suite.Require().Len(events, 4)
 }
 
-func (rs *userRepoSuite) Test_Deposit() {
+func (suite *walletsuroSuite) Test_Deposit() {
 	amount := model.NewMoney(200, model.DefaultCurrency)
 	UUID, err := uuid.Parse("81da6536-f03e-11eb-9a03-0242ac130003")
-	rs.Require().NoError(err)
+	suite.Require().NoError(err)
 
-	wallet, err := rs.service.Deposit(context.Background(), 1, UUID, amount)
-	rs.Require().NoError(err)
+	wallet, err := suite.service.Deposit(context.Background(), 1, UUID, amount)
+	suite.Require().NoError(err)
 	expected := model.Wallet{
 		UUID:   UUID,
 		UserID: 1,
 		Amount: model.NewMoney(300, model.DefaultCurrency),
 	}
-	rs.Equal(expected, wallet)
+	suite.Equal(expected, wallet)
 
-	wallet2, err := rs.service.Deposit(context.Background(), 1, UUID, amount)
-	rs.Require().NoError(err)
+	wallet2, err := suite.service.Deposit(context.Background(), 1, UUID, amount)
+	suite.Require().NoError(err)
 	expected2 := model.Wallet{
 		UUID:   UUID,
 		UserID: 1,
 		Amount: model.NewMoney(500, model.DefaultCurrency),
 	}
-	rs.Equal(expected2, wallet2)
+	suite.Equal(expected2, wallet2)
 
 	// check events
 	type event struct {
@@ -164,10 +164,10 @@ func (rs *userRepoSuite) Test_Deposit() {
 	}
 	var events []event
 	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1 ORDER BY id"
-	err = rs.dbx.Select(&events, sql, "deposit")
-	rs.Require().NoError(err)
-	rs.Require().Len(events, 2)
-	rs.Require().Equal([]event{
+	err = suite.dbx.Select(&events, sql, "deposit")
+	suite.Require().NoError(err)
+	suite.Require().Len(events, 2)
+	suite.Require().Equal([]event{
 		{
 			ID:               events[0].ID,
 			TargetWalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
@@ -187,25 +187,25 @@ func (rs *userRepoSuite) Test_Deposit() {
 	}, events)
 }
 
-func (rs *userRepoSuite) Test_Transfer() {
+func (suite *walletsuroSuite) Test_Transfer() {
 	amount := model.NewMoney(200, model.DefaultCurrency)
 	fromUUID, err := uuid.Parse("50805aec-eef2-4130-995e-12dde9ef0c1a")
-	rs.Require().NoError(err)
+	suite.Require().NoError(err)
 	toUUID, err := uuid.Parse("81da6536-f03e-11eb-9a03-0242ac130003")
-	rs.Require().NoError(err)
+	suite.Require().NoError(err)
 
 	userID := int64(2)
-	wallet, err := rs.service.Transfer(context.Background(), userID, fromUUID, toUUID, amount)
-	rs.Require().NoError(err)
+	wallet, err := suite.service.Transfer(context.Background(), userID, fromUUID, toUUID, amount)
+	suite.Require().NoError(err)
 	expected := model.Wallet{
 		UUID:   fromUUID,
 		UserID: userID,
 		Amount: model.NewMoney(145, model.DefaultCurrency),
 	}
-	rs.Equal(expected, wallet)
+	suite.Equal(expected, wallet)
 
-	_, err = rs.service.Transfer(context.Background(), userID, fromUUID, toUUID, amount)
-	rs.Require().Error(err)
+	_, err = suite.service.Transfer(context.Background(), userID, fromUUID, toUUID, amount)
+	suite.Require().Error(err)
 
 	// check events
 	type event struct {
@@ -218,10 +218,10 @@ func (rs *userRepoSuite) Test_Transfer() {
 	}
 	var events []event
 	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1 ORDER BY id"
-	err = rs.dbx.Select(&events, sql, "transfer")
-	rs.Require().NoError(err)
-	rs.Require().Len(events, 1)
-	rs.Require().Equal([]event{
+	err = suite.dbx.Select(&events, sql, "transfer")
+	suite.Require().NoError(err)
+	suite.Require().Len(events, 1)
+	suite.Require().Equal([]event{
 		{
 			ID:               events[0].ID,
 			TargetWalletUUID: "50805aec-eef2-4130-995e-12dde9ef0c1a",
@@ -231,6 +231,48 @@ func (rs *userRepoSuite) Test_Transfer() {
 			Type:             "transfer",
 		},
 	}, events)
+}
+
+func (suite *walletsuroSuite) Test_Report() {
+	suite.loadCustomFixture("report")
+
+	userID := int64(2)
+	report, err := suite.service.Report(context.Background(), userID, nil, nil)
+	suite.Require().NoError(err)
+	expected := []model.ReportData{
+		{
+			WalletUUID: "50805aec-eef2-4130-995e-12dde9ef0c1a",
+			Date:       "2021-07-29T18:16:08Z",
+			Type:       "transfer",
+			Amount:     "$2.00"},
+		{
+			WalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
+			Date:       "2021-07-29T18:37:08Z",
+			Type:       "deposit",
+			Amount:     "$2.00"},
+		{
+			WalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
+			Date:       "2021-07-29T18:37:08Z",
+			Type:       "deposit",
+			Amount:     "$2.00",
+		},
+	}
+	suite.Len(report, 3)
+	suite.Equal(expected, report)
+
+}
+
+func (suite *walletsuroSuite) loadCustomFixture(dir string) {
+
+	fixtures, err := testfixtures.New(
+		testfixtures.Dialect("postgres"),
+		testfixtures.Database(suite.dbx.DB),
+		testfixtures.Directory("testdata/fixtures/"+dir),
+	)
+	suite.Require().NoError(err)
+
+	err = fixtures.Load()
+	suite.Require().NoError(err)
 }
 
 // loadFixtures - На будущее. Чтобы можно было генерить фикстуры из go структур. Чтобы для разных тестов использовать один файл фикстур
@@ -255,16 +297,16 @@ func (rs *userRepoSuite) Test_Transfer() {
 //  status_id: 60
 //  order_updated_at: RAW={{$order.OrderUpdatedAt}}
 //{{end}}
-func (s *userRepoSuite) loadFixtures(dir string, data interface{}) {
+func (suite *walletsuroSuite) loadFixtures(dir string, data interface{}) {
 	fxrPGSQL, err := testfixtures.New(
 		testfixtures.Dialect("postgres"),
-		testfixtures.Database(s.dbx.DB),
+		testfixtures.Database(suite.dbx.DB),
 		testfixtures.Template(),
 		testfixtures.TemplateData(map[string]interface{}{"Orders": data}),
 		testfixtures.Directory(dir),
 	)
-	s.Require().NoError(err)
+	suite.Require().NoError(err)
 
 	err = fxrPGSQL.Load()
-	s.Require().NoError(err)
+	suite.Require().NoError(err)
 }
