@@ -127,3 +127,39 @@ func (rs *userRepoSuite) Test_CreateWallet() {
 	rs.Require().NoError(err)
 	rs.Require().Len(events, 3)
 }
+
+// loadFixtures - На будущее. Чтобы можно было генерить фикстуры из go структур. Чтобы для разных тестов использовать один файл фикстур
+// Use example
+// 	type fixture struct {
+//		StatusID int
+//	}
+//	s.loadFixtures("testdata/fixtures/orders/status_test", []*fixture{
+//		{StatusID: 1},
+//		{StatusID: 56},
+//		{StatusID: -11},
+//		{StatusID: 888},
+//	})
+// Yaml example
+//{{range $order := $.Orders}}
+//- updated_at: RAW=NOW()
+//  type: 'vendor'
+//  order_hash: RAW=MD5(random()::text)
+//  vendor_id: 1
+//  chain_id: 1
+//  user_id: 1
+//  status_id: 60
+//  order_updated_at: RAW={{$order.OrderUpdatedAt}}
+//{{end}}
+func (s *userRepoSuite) loadFixtures(dir string, data interface{}) {
+	fxrPGSQL, err := testfixtures.New(
+		testfixtures.Dialect("postgres"),
+		testfixtures.Database(s.dbx.DB),
+		testfixtures.Template(),
+		testfixtures.TemplateData(map[string]interface{}{"Orders": data}),
+		testfixtures.Directory(dir),
+	)
+	s.Require().NoError(err)
+
+	err = fxrPGSQL.Load()
+	s.Require().NoError(err)
+}
