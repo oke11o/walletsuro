@@ -15,6 +15,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"go.octolab.org/pointer"
 
 	"github.com/oke11o/walletsuro/internal/config"
 	"github.com/oke11o/walletsuro/internal/model"
@@ -126,7 +127,7 @@ func (rs *userRepoSuite) Test_CreateWallet() {
 	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1"
 	err = rs.dbx.Select(&events, sql, "create")
 	rs.Require().NoError(err)
-	rs.Require().Len(events, 3)
+	rs.Require().Len(events, 4)
 }
 
 func (rs *userRepoSuite) Test_Deposit() {
@@ -182,6 +183,52 @@ func (rs *userRepoSuite) Test_Deposit() {
 			Amount:           200,
 			Date:             events[1].Date,
 			Type:             "deposit",
+		},
+	}, events)
+}
+
+func (rs *userRepoSuite) Test_Transfer() {
+	amount := model.NewMoney(200, model.DefaultCurrency)
+	fromUUID, err := uuid.Parse("50805aec-eef2-4130-995e-12dde9ef0c1a")
+	rs.Require().NoError(err)
+	toUUID, err := uuid.Parse("81da6536-f03e-11eb-9a03-0242ac130003")
+	rs.Require().NoError(err)
+
+	userID := int64(2)
+	wallet, err := rs.service.Transfer(context.Background(), userID, fromUUID, toUUID, amount)
+	rs.Require().NoError(err)
+	expected := model.Wallet{
+		UUID:   fromUUID,
+		UserID: userID,
+		Amount: model.NewMoney(145, model.DefaultCurrency),
+	}
+	rs.Equal(expected, wallet)
+
+	_, err = rs.service.Transfer(context.Background(), userID, fromUUID, toUUID, amount)
+	rs.Require().Error(err)
+
+	// check events
+	type event struct {
+		ID               int64     `db:"id"`
+		TargetWalletUUID string    `db:"target_wallet_uuid"`
+		WalletUUID       *string   `db:"from_wallet_uuid"`
+		Amount           int64     `db:"amount"`
+		Date             time.Time `db:"date"`
+		Type             string    `db:"type"`
+	}
+	var events []event
+	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1 ORDER BY id"
+	err = rs.dbx.Select(&events, sql, "transfer")
+	rs.Require().NoError(err)
+	rs.Require().Len(events, 1)
+	rs.Require().Equal([]event{
+		{
+			ID:               events[0].ID,
+			TargetWalletUUID: "50805aec-eef2-4130-995e-12dde9ef0c1a",
+			WalletUUID:       pointer.ToString("81da6536-f03e-11eb-9a03-0242ac130003"),
+			Amount:           200,
+			Date:             events[0].Date,
+			Type:             "transfer",
 		},
 	}, events)
 }
