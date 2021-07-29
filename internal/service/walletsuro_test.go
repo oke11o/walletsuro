@@ -10,6 +10,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
@@ -126,6 +127,63 @@ func (rs *userRepoSuite) Test_CreateWallet() {
 	err = rs.dbx.Select(&events, sql, "create")
 	rs.Require().NoError(err)
 	rs.Require().Len(events, 3)
+}
+
+func (rs *userRepoSuite) Test_Deposit() {
+	amount := model.NewMoney(200, model.DefaultCurrency)
+	UUID, err := uuid.Parse("81da6536-f03e-11eb-9a03-0242ac130003")
+	rs.Require().NoError(err)
+
+	wallet, err := rs.service.Deposit(context.Background(), 1, UUID, amount)
+	rs.Require().NoError(err)
+	expected := model.Wallet{
+		UUID:   UUID,
+		UserID: 1,
+		Amount: model.NewMoney(300, model.DefaultCurrency),
+	}
+	rs.Equal(expected, wallet)
+
+	wallet2, err := rs.service.Deposit(context.Background(), 1, UUID, amount)
+	rs.Require().NoError(err)
+	expected2 := model.Wallet{
+		UUID:   UUID,
+		UserID: 1,
+		Amount: model.NewMoney(500, model.DefaultCurrency),
+	}
+	rs.Equal(expected2, wallet2)
+
+	// check events
+	type event struct {
+		ID               int64     `db:"id"`
+		TargetWalletUUID string    `db:"target_wallet_uuid"`
+		WalletUUID       *string   `db:"from_wallet_uuid"`
+		Amount           int64     `db:"amount"`
+		Date             time.Time `db:"date"`
+		Type             string    `db:"type"`
+	}
+	var events []event
+	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1 ORDER BY id"
+	err = rs.dbx.Select(&events, sql, "deposit")
+	rs.Require().NoError(err)
+	rs.Require().Len(events, 2)
+	rs.Require().Equal([]event{
+		{
+			ID:               events[0].ID,
+			TargetWalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
+			WalletUUID:       nil,
+			Amount:           200,
+			Date:             events[0].Date,
+			Type:             "deposit",
+		},
+		{
+			ID:               events[1].ID,
+			TargetWalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
+			WalletUUID:       nil,
+			Amount:           200,
+			Date:             events[1].Date,
+			Type:             "deposit",
+		},
+	}, events)
 }
 
 // loadFixtures - На будущее. Чтобы можно было генерить фикстуры из go структур. Чтобы для разных тестов использовать один файл фикстур
