@@ -6,9 +6,13 @@ package service
 
 import (
 	context "context"
+	money "github.com/Rhymond/go-money"
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
+	sqlx "github.com/jmoiron/sqlx"
 	model "github.com/oke11o/walletsuro/internal/model"
 	reflect "reflect"
+	time "time"
 )
 
 // Mockrepo is a mock of repo interface
@@ -35,16 +39,118 @@ func (m *Mockrepo) EXPECT() *MockrepoMockRecorder {
 }
 
 // CreateWallet mocks base method
-func (m *Mockrepo) CreateWallet(ctx context.Context, userID int64) (model.Wallet, error) {
+func (m *Mockrepo) CreateWallet(ctx context.Context, tx sqlx.ExecerContext, userID int64) (model.Wallet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateWallet", ctx, userID)
+	ret := m.ctrl.Call(m, "CreateWallet", ctx, tx, userID)
 	ret0, _ := ret[0].(model.Wallet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateWallet indicates an expected call of CreateWallet
-func (mr *MockrepoMockRecorder) CreateWallet(ctx, userID interface{}) *gomock.Call {
+func (mr *MockrepoMockRecorder) CreateWallet(ctx, tx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWallet", reflect.TypeOf((*Mockrepo)(nil).CreateWallet), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWallet", reflect.TypeOf((*Mockrepo)(nil).CreateWallet), ctx, tx, userID)
+}
+
+// Event mocks base method
+func (m *Mockrepo) Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *money.Money, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Event", ctx, tx, userID, amount, targetWallet, eventType, fromWallet)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Event indicates an expected call of Event
+func (mr *MockrepoMockRecorder) Event(ctx, tx, userID, amount, targetWallet, eventType, fromWallet interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Event", reflect.TypeOf((*Mockrepo)(nil).Event), ctx, tx, userID, amount, targetWallet, eventType, fromWallet)
+}
+
+// WithTransaction mocks base method
+func (m *Mockrepo) WithTransaction(ctx context.Context, fn func(*sqlx.Tx) error) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithTransaction", ctx, fn)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WithTransaction indicates an expected call of WithTransaction
+func (mr *MockrepoMockRecorder) WithTransaction(ctx, fn interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithTransaction", reflect.TypeOf((*Mockrepo)(nil).WithTransaction), ctx, fn)
+}
+
+// GetWalletWithBlock mocks base method
+func (m *Mockrepo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWalletWithBlock", ctx, tx, uuid)
+	ret0, _ := ret[0].(model.Wallet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWalletWithBlock indicates an expected call of GetWalletWithBlock
+func (mr *MockrepoMockRecorder) GetWalletWithBlock(ctx, tx, uuid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWalletWithBlock", reflect.TypeOf((*Mockrepo)(nil).GetWalletWithBlock), ctx, tx, uuid)
+}
+
+// GetWalletsWithBlock mocks base method
+func (m *Mockrepo) GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWalletsWithBlock", ctx, tx, fromUUID, toUUID)
+	ret0, _ := ret[0].(model.Wallet)
+	ret1, _ := ret[1].(model.Wallet)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetWalletsWithBlock indicates an expected call of GetWalletsWithBlock
+func (mr *MockrepoMockRecorder) GetWalletsWithBlock(ctx, tx, fromUUID, toUUID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWalletsWithBlock", reflect.TypeOf((*Mockrepo)(nil).GetWalletsWithBlock), ctx, tx, fromUUID, toUUID)
+}
+
+// SaveWallet mocks base method
+func (m *Mockrepo) SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveWallet", ctx, tx, wal)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveWallet indicates an expected call of SaveWallet
+func (mr *MockrepoMockRecorder) SaveWallet(ctx, tx, wal interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveWallet", reflect.TypeOf((*Mockrepo)(nil).SaveWallet), ctx, tx, wal)
+}
+
+// SaveWallets mocks base method
+func (m *Mockrepo) SaveWallets(ctx context.Context, tx *sqlx.Tx, wallet, wallet2 model.Wallet) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveWallets", ctx, tx, wallet, wallet2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveWallets indicates an expected call of SaveWallets
+func (mr *MockrepoMockRecorder) SaveWallets(ctx, tx, wallet, wallet2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveWallets", reflect.TypeOf((*Mockrepo)(nil).SaveWallets), ctx, tx, wallet, wallet2)
+}
+
+// FindEvents mocks base method
+func (m *Mockrepo) FindEvents(ctx context.Context, id int64, t *string, date *time.Time) ([]model.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindEvents", ctx, id, t, date)
+	ret0, _ := ret[0].([]model.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindEvents indicates an expected call of FindEvents
+func (mr *MockrepoMockRecorder) FindEvents(ctx, id, t, date interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindEvents", reflect.TypeOf((*Mockrepo)(nil).FindEvents), ctx, id, t, date)
 }

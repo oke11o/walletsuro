@@ -9,9 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Rhymond/go-money"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+
 	"github.com/oke11o/walletsuro/internal/config"
 	"github.com/oke11o/walletsuro/internal/model"
 )
@@ -43,7 +45,7 @@ func (Repo) CreateWallet(ctx context.Context, tx sqlx.ExecerContext, userID int6
 	return wallet, nil
 }
 
-func (Repo) Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *model.Money, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error {
+func (Repo) Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *money.Money, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error {
 	args := make([]interface{}, 0, 3)
 	args = append(args, userID, amount.Amount(), targetWallet.String(), eventType)
 	var sql string
@@ -185,7 +187,7 @@ func (r *Repo) FindEvents(ctx context.Context, userID int64, t *string, date *ti
 		result = append(result, model.Event{
 			ID:               0,
 			UserID:           userID,
-			Amount:           model.NewMoney(dest.Amount, model.DefaultCurrency),
+			Amount:           money.New(dest.Amount, model.DefaultCurrency),
 			TargetWalletUUID: TargetWalletUUID,
 			FromWalletUUID:   FromWalletUUID,
 			Type:             dest.Type,

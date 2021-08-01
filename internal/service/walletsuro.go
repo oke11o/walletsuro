@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/Rhymond/go-money"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,7 +28,7 @@ func (s Service) CreateWallet(ctx context.Context, userID int64) (model.Wallet, 
 		if err != nil {
 			return err
 		}
-		return s.repo.Event(ctx, tx, userID, model.NewMoney(0, model.DefaultCurrency), wal.UUID, model.CreateType, nil)
+		return s.repo.Event(ctx, tx, userID, money.New(0, model.DefaultCurrency), wal.UUID, model.CreateType, nil)
 	})
 	if err != nil {
 		return wal, fmt.Errorf("cant create wallet %w", err)
@@ -35,7 +36,7 @@ func (s Service) CreateWallet(ctx context.Context, userID int64) (model.Wallet, 
 	return wal, nil
 }
 
-func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amount *model.Money) (model.Wallet, error) {
+func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amount *money.Money) (model.Wallet, error) {
 	var wal model.Wallet
 	err := s.repo.WithTransaction(ctx, func(tx *sqlx.Tx) error {
 		var err error
@@ -61,7 +62,7 @@ func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amou
 	return wal, nil
 }
 
-func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID, toUuid uuid.UUID, amount *model.Money) (model.Wallet, error) {
+func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID, toUuid uuid.UUID, amount *money.Money) (model.Wallet, error) {
 	var fromWallet model.Wallet
 	err := s.repo.WithTransaction(ctx, func(tx *sqlx.Tx) error {
 		var err error
@@ -107,18 +108,18 @@ func (s Service) Report(ctx context.Context, userID int64, t *string, date *time
 			WalletUUID: r.TargetWalletUUID.String(),
 			Date:       r.Date.Format(time.RFC3339),
 			Type:       r.Type,
-			Amount:     r.Amount.Money.Display(),
+			Amount:     r.Amount.Display(),
 		})
 	}
 
 	return result, nil
 }
 
-func (s Service) checkWalletPermission(wal model.Wallet, userID int64, amount *model.Money) error {
+func (s Service) checkWalletPermission(wal model.Wallet, userID int64, amount *money.Money) error {
 	if wal.UserID != userID {
 		return model.ErrPermissionDeniedWallet
 	}
-	less, err := wal.Amount.LessThan(&amount.Money)
+	less, err := wal.Amount.LessThan(amount)
 	if err != nil {
 		return model.ErrPermissionDeniedWallet
 	}

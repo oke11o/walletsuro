@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Rhymond/go-money"
+
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -131,7 +133,7 @@ func (suite *walletsuroSuite) Test_CreateWallet() {
 }
 
 func (suite *walletsuroSuite) Test_Deposit() {
-	amount := model.NewMoney(200, model.DefaultCurrency)
+	amount := money.New(200, model.DefaultCurrency)
 	UUID, err := uuid.Parse("81da6536-f03e-11eb-9a03-0242ac130003")
 	suite.Require().NoError(err)
 
@@ -140,7 +142,7 @@ func (suite *walletsuroSuite) Test_Deposit() {
 	expected := model.Wallet{
 		UUID:   UUID,
 		UserID: 1,
-		Amount: model.NewMoney(300, model.DefaultCurrency),
+		Amount: money.New(300, model.DefaultCurrency),
 	}
 	suite.Equal(expected, wallet)
 
@@ -149,7 +151,7 @@ func (suite *walletsuroSuite) Test_Deposit() {
 	expected2 := model.Wallet{
 		UUID:   UUID,
 		UserID: 1,
-		Amount: model.NewMoney(500, model.DefaultCurrency),
+		Amount: money.New(500, model.DefaultCurrency),
 	}
 	suite.Equal(expected2, wallet2)
 
@@ -188,7 +190,7 @@ func (suite *walletsuroSuite) Test_Deposit() {
 }
 
 func (suite *walletsuroSuite) Test_Transfer() {
-	amount := model.NewMoney(200, model.DefaultCurrency)
+	amount := money.New(200, model.DefaultCurrency)
 	fromUUID, err := uuid.Parse("50805aec-eef2-4130-995e-12dde9ef0c1a")
 	suite.Require().NoError(err)
 	toUUID, err := uuid.Parse("81da6536-f03e-11eb-9a03-0242ac130003")
@@ -200,7 +202,7 @@ func (suite *walletsuroSuite) Test_Transfer() {
 	expected := model.Wallet{
 		UUID:   fromUUID,
 		UserID: userID,
-		Amount: model.NewMoney(145, model.DefaultCurrency),
+		Amount: money.New(145, model.DefaultCurrency),
 	}
 	suite.Equal(expected, wallet)
 

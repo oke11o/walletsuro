@@ -6,6 +6,7 @@ package handler
 
 import (
 	context "context"
+	money "github.com/Rhymond/go-money"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	model "github.com/oke11o/walletsuro/internal/model"
@@ -52,7 +53,7 @@ func (mr *MockserviceMockRecorder) CreateWallet(ctx, userID interface{}) *gomock
 }
 
 // Deposit mocks base method
-func (m *Mockservice) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amount *model.Money) (model.Wallet, error) {
+func (m *Mockservice) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amount *money.Money) (model.Wallet, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Deposit", ctx, userID, uuid, amount)
 	ret0, _ := ret[0].(model.Wallet)
@@ -67,7 +68,7 @@ func (mr *MockserviceMockRecorder) Deposit(ctx, userID, uuid, amount interface{}
 }
 
 // Transfer mocks base method
-func (m *Mockservice) Transfer(ctx context.Context, userID int64, fromWalletUUID, toWalletUUID uuid.UUID, amount *model.Money) (model.Wallet, error) {
+func (m *Mockservice) Transfer(ctx context.Context, userID int64, fromWalletUUID, toWalletUUID uuid.UUID, amount *money.Money) (model.Wallet, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Transfer", ctx, userID, fromWalletUUID, toWalletUUID, amount)
 	ret0, _ := ret[0].(model.Wallet)
@@ -82,10 +83,10 @@ func (mr *MockserviceMockRecorder) Transfer(ctx, userID, fromWalletUUID, toWalle
 }
 
 // Report mocks base method
-func (m *Mockservice) Report(ctx context.Context, userID int64, t *string, date *time.Time) ([]model.Event, error) {
+func (m *Mockservice) Report(ctx context.Context, userID int64, t *string, date *time.Time) ([]model.ReportData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Report", ctx, userID, t, date)
-	ret0, _ := ret[0].([]model.Event)
+	ret0, _ := ret[0].([]model.ReportData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

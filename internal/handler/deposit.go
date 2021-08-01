@@ -3,17 +3,18 @@ package handler
 import (
 	"log"
 
-	"github.com/go-openapi/strfmt"
-
+	"github.com/Rhymond/go-money"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	uuid2 "github.com/google/uuid"
+
 	"github.com/oke11o/walletsuro/internal/generated/models"
 	"github.com/oke11o/walletsuro/internal/generated/restapi/operations/wallet"
 	"github.com/oke11o/walletsuro/internal/model"
 )
 
 func (s *Server) Deposit(params wallet.DepositParams) middleware.Responder {
-	amount := model.NewMoney(params.Body.Amount, model.DefaultCurrency)
+	amount := money.New(params.Body.Amount, model.DefaultCurrency)
 	walletUUID, err := uuid2.Parse(params.Body.WalletUUID.String())
 	if err != nil {
 		return wallet.NewDepositInternalServerError().WithPayload(&models.SimpleResponse{
