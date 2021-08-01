@@ -17,7 +17,9 @@ POST {{service}}/v1/create
 Content-Type: application/json
 X-UserID: 1
 
-{}
+{
+  "currency": "USD"
+}
 
 ### deposit
 
@@ -27,7 +29,7 @@ X-UserID: 1
 
 {
   "wallet_uuid": "d0b5faf5-b212-423a-b35f-6cbbbf23715c",
-  "amount": 123
+  "amount": 123.45
 }
 
 ### transfer
@@ -39,5 +41,5 @@ X-UserID: 1
 {
   "from_wallet_uuid": "d0b5faf5-b212-423a-b35f-6cbbbf23715c",
   "to_wallet_uuid": "8ac77032-45a9-485d-a970-55fae77fd173",
-  "amount" : 123
+  "amount" : 123.46
 }

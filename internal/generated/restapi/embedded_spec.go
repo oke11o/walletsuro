@@ -56,6 +56,19 @@ func init() {
             "name": "X-UserID",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "currency": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -356,6 +369,19 @@ func init() {
             "name": "X-UserID",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "currency": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {

@@ -60,6 +60,43 @@ func (o *CreateWallet) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 }
 
+// CreateWalletBody create wallet body
+//
+// swagger:model CreateWalletBody
+type CreateWalletBody struct {
+
+	// currency
+	Currency string `json:"currency,omitempty"`
+}
+
+// Validate validates this create wallet body
+func (o *CreateWalletBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create wallet body based on context it is used
+func (o *CreateWalletBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateWalletBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateWalletBody) UnmarshalBinary(b []byte) error {
+	var res CreateWalletBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 // CreateWalletOKBody create wallet o k body
 //
 // swagger:model CreateWalletOKBody

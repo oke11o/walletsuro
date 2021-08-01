@@ -3,9 +3,10 @@ EXTENSION IF NOT EXISTS "uuid-ossp";
 
 create table wallets
 (
-    uuid    uuid not null,
-    user_id int  not null,
-    amount  int  not null default 0
+    uuid     uuid         not null,
+    user_id  int          not null,
+    amount   int          not null default 0,
+    currency varchar(255) not null
 );
 
 create

@@ -64,9 +64,9 @@ func (suite *walletsuroSuite) SetupSuite() {
 	// Если же миграции уже накатили, тут получаем os.ErrNotExist.
 	// Стоит разобраться
 	_ = m.Steps(2)
-	//require.NoError(suite.T(), err)
+	// require.NoError(suite.T(), err)
 
-	//service
+	// service
 	r, err := repository.New(dbCfg)
 	require.NoError(suite.T(), err)
 	suite.service = New(r)
@@ -100,19 +100,21 @@ func (suite *walletsuroSuite) SetupTest() {
 }
 
 func (suite *walletsuroSuite) Test_CreateWallet() {
-	wallet, err := suite.service.CreateWallet(context.Background(), 1)
+	wallet, err := suite.service.CreateWallet(context.Background(), 1, model.DefaultCurrency)
 	suite.Require().NoError(err)
 	expected := model.Wallet{
 		UUID:   wallet.UUID,
 		UserID: 1,
+		Amount: money.New(0, model.DefaultCurrency),
 	}
 	suite.Equal(expected, wallet)
 
-	wallet2, err := suite.service.CreateWallet(context.Background(), 2)
+	wallet2, err := suite.service.CreateWallet(context.Background(), 2, model.DefaultCurrency)
 	suite.Require().NoError(err)
 	expected2 := model.Wallet{
 		UUID:   wallet2.UUID,
 		UserID: 2,
+		Amount: money.New(0, model.DefaultCurrency),
 	}
 	suite.Equal(expected2, wallet2)
 
@@ -289,16 +291,17 @@ func (suite *walletsuroSuite) loadCustomFixture(dir string) {
 //		{StatusID: 888},
 //	})
 // Yaml example
-//{{range $order := $.Orders}}
-//- updated_at: RAW=NOW()
-//  type: 'vendor'
-//  order_hash: RAW=MD5(random()::text)
-//  vendor_id: 1
-//  chain_id: 1
-//  user_id: 1
-//  status_id: 60
-//  order_updated_at: RAW={{$order.OrderUpdatedAt}}
-//{{end}}
+// {{range $order := $.Orders}}
+// - updated_at: RAW=NOW()
+//   type: 'vendor'
+//   order_hash: RAW=MD5(random()::text)
+//   vendor_id: 1
+//   chain_id: 1
+//   user_id: 1
+//   status_id: 60
+//   order_updated_at: RAW={{$order.OrderUpdatedAt}}
+// {{end}}
+// nolint: unused
 func (suite *walletsuroSuite) loadFixtures(dir string, data interface{}) {
 	fxrPGSQL, err := testfixtures.New(
 		testfixtures.Dialect("postgres"),

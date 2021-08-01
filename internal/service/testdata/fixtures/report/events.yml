@@ -1,6 +1,7 @@
 - id: 9999
   user_id: 2
   amount: 0
+  currency: USD
   target_wallet_uuid: 50805aec-eef2-4130-995e-12dde9ef0c1a
   from_wallet_uuid:
   type: create
@@ -8,6 +9,7 @@
 - id: 10000
   user_id: 2
   amount: 0
+  currency: USD
   target_wallet_uuid: 81da6536-f03e-11eb-9a03-0242ac130003
   from_wallet_uuid:
   type: create
@@ -15,6 +17,7 @@
 - id: 10001
   user_id: 2
   amount: 200
+  currency: USD
   target_wallet_uuid: 50805aec-eef2-4130-995e-12dde9ef0c1a
   from_wallet_uuid: 81da6536-f03e-11eb-9a03-0242ac130003
   type: transfer
@@ -22,6 +25,7 @@
 - id: 10002
   user_id: 2
   amount: 200
+  currency: USD
   target_wallet_uuid: 81da6536-f03e-11eb-9a03-0242ac130003
   from_wallet_uuid:
   type: deposit
@@ -29,6 +33,7 @@
 - id: 10003
   user_id: 2
   amount: 200
+  currency: USD
   target_wallet_uuid: 81da6536-f03e-11eb-9a03-0242ac130003
   from_wallet_uuid:
   type: deposit

@@ -30,30 +30,30 @@ type Repo struct {
 	db *sqlx.DB
 }
 
-func (Repo) CreateWallet(ctx context.Context, tx sqlx.ExecerContext, userID int64) (model.Wallet, error) {
+func (Repo) CreateWallet(ctx context.Context, tx sqlx.ExecerContext, userID int64, currency string) (model.Wallet, error) {
 	UUID := uuid.New()
-	sql := "INSERT INTO wallets (user_id, uuid) VALUES ($1, $2)"
-	_, err := tx.ExecContext(ctx, sql, userID, UUID.String())
+	sql := "INSERT INTO wallets (user_id, uuid, currency) VALUES ($1, $2, $3)"
+	_, err := tx.ExecContext(ctx, sql, userID, UUID.String(), currency)
 	if err != nil {
 		return model.Wallet{}, fmt.Errorf("cant create wallet: %w", err)
 	}
 
-	wallet := model.Wallet{
+	return model.Wallet{
 		UUID:   UUID,
 		UserID: userID,
-	}
-	return wallet, nil
+		Amount: money.New(0, currency),
+	}, nil
 }
 
 func (Repo) Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *money.Money, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error {
 	args := make([]interface{}, 0, 3)
-	args = append(args, userID, amount.Amount(), targetWallet.String(), eventType)
+	args = append(args, userID, amount.Amount(), amount.Currency().Code, targetWallet.String(), eventType)
 	var sql string
 	if fromWallet != nil {
 		args = append(args, fromWallet.String())
-		sql = "INSERT INTO events (user_id, amount, target_wallet_uuid, type, from_wallet_uuid) VALUES ($1, $2, $3, $4, $5) RETURNING id"
+		sql = "INSERT INTO events (user_id, amount, currency, target_wallet_uuid, type, from_wallet_uuid) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"
 	} else {
-		sql = "INSERT INTO events (user_id, amount, target_wallet_uuid, type) VALUES ($1, $2, $3, $4) RETURNING id"
+		sql = "INSERT INTO events (user_id, amount, currency,target_wallet_uuid, type) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 	}
 
 	_, err := tx.ExecContext(ctx, sql, args...)
@@ -88,13 +88,17 @@ func (r *Repo) WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) 
 }
 
 func (r *Repo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error) {
-	var val model.Wallet
-	s := "SELECT uuid, user_id, amount FROM wallets WHERE uuid=$1 FOR UPDATE SKIP LOCKED"
+	var val wallet
+	s := "SELECT uuid, user_id, amount, currency FROM wallets WHERE uuid=$1 FOR UPDATE SKIP LOCKED"
 	if err := tx.GetContext(ctx, &val, s, uuid); err != nil {
-		return val, err
+		return model.Wallet{}, err
 	}
 
-	return val, nil
+	return model.Wallet{
+		UUID:   val.Uuid,
+		UserID: val.UserId,
+		Amount: money.New(val.Amount, val.Currency),
+	}, nil
 }
 
 func (r *Repo) GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error) {

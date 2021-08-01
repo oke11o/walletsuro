@@ -1,10 +1,11 @@
 package model
 
 import (
+	"testing"
+
 	"github.com/Rhymond/go-money"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestWallet_Deposit(t *testing.T) {

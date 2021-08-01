@@ -3,12 +3,14 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/Rhymond/go-money"
 	"time"
+
+	"github.com/Rhymond/go-money"
 
 	"github.com/google/uuid"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/oke11o/walletsuro/internal/model"
 )
 
@@ -20,11 +22,11 @@ type Service struct {
 	repo repo
 }
 
-func (s Service) CreateWallet(ctx context.Context, userID int64) (model.Wallet, error) {
+func (s Service) CreateWallet(ctx context.Context, userID int64, currency string) (model.Wallet, error) {
 	var wal model.Wallet
 	err := s.repo.WithTransaction(ctx, func(tx *sqlx.Tx) error {
 		var err error
-		wal, err = s.repo.CreateWallet(ctx, tx, userID)
+		wal, err = s.repo.CreateWallet(ctx, tx, userID, currency)
 		if err != nil {
 			return err
 		}
