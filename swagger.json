@@ -1,0 +1,309 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "version": "1.0.0",
+    "title": "Swagger Walletsuro",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "bevzenko.sergey@gmail.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "localhost",
+  "basePath": "/v1",
+  "tags": [
+    {
+      "name": "wallet",
+      "description": "Everything about your Wallets",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://swagger.io"
+      }
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/info": {
+      "get": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "info",
+        "description": "",
+        "operationId": "info",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/create": {
+      "post": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Create new wallet account",
+        "description": "",
+        "operationId": "createWallet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-UserID",
+            "in": "header",
+            "description": "",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/deposit": {
+      "post": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Deposit money to the wallet",
+        "description": "Deposit money to the wallet",
+        "operationId": "deposit",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-UserID",
+            "in": "header",
+            "description": "",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/wallet"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/wallet"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/transfer": {
+      "post": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Transfer money to another wallet",
+        "description": "Transfer money to another wallet",
+        "operationId": "transfer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-UserID",
+            "in": "header",
+            "description": "",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "from_wallet_uuid",
+                "to_wallet_uuid",
+                "amount"
+              ],
+              "properties": {
+                "from_wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
+                },
+                "to_wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
+                },
+                "amount": {
+                  "type": "integer",
+                  "x-nullable": false
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/wallet"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/report": {
+      "get": {
+        "tags": [
+          "wallet"
+        ],
+        "summary": "Report account history",
+        "description": "Report account history",
+        "operationId": "report",
+        "parameters": [
+          {
+            "name": "X-UserID",
+            "in": "header",
+            "description": "",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "",
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "",
+            "type": "string",
+            "enum": [
+              "deposit",
+              "transfer"
+            ]
+          }
+        ],
+        "produces": [
+          "text/csv",
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "wallet": {
+      "type": "object",
+      "required": [
+        "wallet_uuid",
+        "amount"
+      ],
+      "properties": {
+        "wallet_uuid": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": false
+        },
+        "amount": {
+          "type": "integer",
+          "x-nullable": false
+        }
+      }
+    },
+    "simpleResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
