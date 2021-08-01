@@ -21,7 +21,11 @@ type Wallet struct {
 
 	// amount
 	// Required: true
-	Amount int64 `json:"amount"`
+	Amount float64 `json:"amount"`
+
+	// currency
+	// Required: true
+	Currency string `json:"currency"`
 
 	// wallet uuid
 	// Required: true
@@ -37,6 +41,10 @@ func (m *Wallet) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCurrency(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateWalletUUID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -49,7 +57,16 @@ func (m *Wallet) Validate(formats strfmt.Registry) error {
 
 func (m *Wallet) validateAmount(formats strfmt.Registry) error {
 
-	if err := validate.Required("amount", "body", int64(m.Amount)); err != nil {
+	if err := validate.Required("amount", "body", float64(m.Amount)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Wallet) validateCurrency(formats strfmt.Registry) error {
+
+	if err := validate.RequiredString("currency", "body", m.Currency); err != nil {
 		return err
 	}
 

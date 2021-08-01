@@ -57,6 +57,50 @@ func (o *DepositOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 	}
 }
 
+// DepositBadRequestCode is the HTTP code returned for type DepositBadRequest
+const DepositBadRequestCode int = 400
+
+/*DepositBadRequest Bad request
+
+swagger:response depositBadRequest
+*/
+type DepositBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *models.SimpleResponse `json:"body,omitempty"`
+}
+
+// NewDepositBadRequest creates DepositBadRequest with default headers values
+func NewDepositBadRequest() *DepositBadRequest {
+
+	return &DepositBadRequest{}
+}
+
+// WithPayload adds the payload to the deposit bad request response
+func (o *DepositBadRequest) WithPayload(payload *models.SimpleResponse) *DepositBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the deposit bad request response
+func (o *DepositBadRequest) SetPayload(payload *models.SimpleResponse) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *DepositBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // DepositInternalServerErrorCode is the HTTP code returned for type DepositInternalServerError
 const DepositInternalServerErrorCode int = 500
 

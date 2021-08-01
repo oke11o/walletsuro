@@ -6,13 +6,15 @@ package service
 
 import (
 	context "context"
+	reflect "reflect"
+	time "time"
+
 	money "github.com/Rhymond/go-money"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	sqlx "github.com/jmoiron/sqlx"
+
 	model "github.com/oke11o/walletsuro/internal/model"
-	reflect "reflect"
-	time "time"
 )
 
 // Mockrepo is a mock of repo interface
@@ -84,7 +86,7 @@ func (mr *MockrepoMockRecorder) WithTransaction(ctx, fn interface{}) *gomock.Cal
 // GetWalletWithBlock mocks base method
 func (m *Mockrepo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetWalletWithBlock", ctx, tx, uuid)
+	ret := m.ctrl.Call(m, "GetWalletInTransaction", ctx, tx, uuid)
 	ret0, _ := ret[0].(model.Wallet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -93,13 +95,13 @@ func (m *Mockrepo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uui
 // GetWalletWithBlock indicates an expected call of GetWalletWithBlock
 func (mr *MockrepoMockRecorder) GetWalletWithBlock(ctx, tx, uuid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWalletWithBlock", reflect.TypeOf((*Mockrepo)(nil).GetWalletWithBlock), ctx, tx, uuid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWalletInTransaction", reflect.TypeOf((*Mockrepo)(nil).GetWalletWithBlock), ctx, tx, uuid)
 }
 
 // GetWalletsWithBlock mocks base method
 func (m *Mockrepo) GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetWalletsWithBlock", ctx, tx, fromUUID, toUUID)
+	ret := m.ctrl.Call(m, "GetWalletsInTransaction", ctx, tx, fromUUID, toUUID)
 	ret0, _ := ret[0].(model.Wallet)
 	ret1, _ := ret[1].(model.Wallet)
 	ret2, _ := ret[2].(error)
@@ -109,7 +111,7 @@ func (m *Mockrepo) GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUI
 // GetWalletsWithBlock indicates an expected call of GetWalletsWithBlock
 func (mr *MockrepoMockRecorder) GetWalletsWithBlock(ctx, tx, fromUUID, toUUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWalletsWithBlock", reflect.TypeOf((*Mockrepo)(nil).GetWalletsWithBlock), ctx, tx, fromUUID, toUUID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWalletsInTransaction", reflect.TypeOf((*Mockrepo)(nil).GetWalletsWithBlock), ctx, tx, fromUUID, toUUID)
 }
 
 // SaveWallet mocks base method

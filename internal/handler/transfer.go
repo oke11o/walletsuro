@@ -49,7 +49,8 @@ func (s *Server) Transfer(params wallet.TransferParams) middleware.Responder {
 
 	return wallet.NewTransferOK().WithPayload(
 		&models.Wallet{
-			Amount:     wal.Amount.Amount(),
+			Amount:     wal.Amount.AsMajorUnits(),
+			Currency:   wal.Amount.Currency().Code,
 			WalletUUID: strfmt.UUID(wal.UUID.String()),
 		},
 	)

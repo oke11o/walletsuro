@@ -6,9 +6,7 @@ import (
 	"time"
 
 	"github.com/Rhymond/go-money"
-
 	"github.com/google/uuid"
-
 	"github.com/jmoiron/sqlx"
 
 	"github.com/oke11o/walletsuro/internal/model"
@@ -43,7 +41,7 @@ func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amou
 	err := s.repo.WithTransaction(ctx, func(tx *sqlx.Tx) error {
 		var err error
 
-		wal, err = s.repo.GetWalletWithBlock(ctx, tx, uuid)
+		wal, err = s.repo.GetWalletInTransaction(ctx, tx, uuid)
 		if err != nil {
 			return err
 		}
@@ -69,7 +67,7 @@ func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID,
 	err := s.repo.WithTransaction(ctx, func(tx *sqlx.Tx) error {
 		var err error
 		var toWallet model.Wallet
-		fromWallet, toWallet, err = s.repo.GetWalletsWithBlock(ctx, tx, fromUuid, toUuid)
+		fromWallet, toWallet, err = s.repo.GetWalletsInTransaction(ctx, tx, fromUuid, toUuid)
 		if err != nil {
 			return err
 		}

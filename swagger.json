@@ -146,6 +146,12 @@
               "$ref": "#/definitions/wallet"
             }
           },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          },
           "500": {
             "description": "Internal server error",
             "schema": {
@@ -293,7 +299,8 @@
       "type": "object",
       "required": [
         "wallet_uuid",
-        "amount"
+        "amount",
+        "currency"
       ],
       "properties": {
         "wallet_uuid": {
@@ -302,7 +309,11 @@
           "x-nullable": false
         },
         "amount": {
-          "type": "integer",
+          "type": "number",
+          "x-nullable": false
+        },
+        "currency": {
+          "type": "string",
           "x-nullable": false
         }
       }

@@ -28,8 +28,9 @@ Content-Type: application/json
 X-UserID: 1
 
 {
-  "wallet_uuid": "d0b5faf5-b212-423a-b35f-6cbbbf23715c",
-  "amount": 123.45
+  "wallet_uuid": "e53f401e-2298-4192-9f57-cb3cc7d1d316",
+  "amount": 123.45,
+  "currency": "USD"
 }
 
 ### transfer

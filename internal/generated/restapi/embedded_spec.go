@@ -127,6 +127,12 @@ func init() {
               "$ref": "#/definitions/wallet"
             }
           },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
+            }
+          },
           "500": {
             "description": "Internal server error",
             "schema": {
@@ -304,11 +310,16 @@ func init() {
       "type": "object",
       "required": [
         "wallet_uuid",
-        "amount"
+        "amount",
+        "currency"
       ],
       "properties": {
         "amount": {
-          "type": "integer",
+          "type": "number",
+          "x-nullable": false
+        },
+        "currency": {
+          "type": "string",
           "x-nullable": false
         },
         "wallet_uuid": {
@@ -438,6 +449,12 @@ func init() {
             "description": "Ok",
             "schema": {
               "$ref": "#/definitions/wallet"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/simpleResponse"
             }
           },
           "500": {
@@ -617,11 +634,16 @@ func init() {
       "type": "object",
       "required": [
         "wallet_uuid",
-        "amount"
+        "amount",
+        "currency"
       ],
       "properties": {
         "amount": {
-          "type": "integer",
+          "type": "number",
+          "x-nullable": false
+        },
+        "currency": {
+          "type": "string",
           "x-nullable": false
         },
         "wallet_uuid": {

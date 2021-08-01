@@ -87,7 +87,7 @@ func (r *Repo) WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) 
 	return nil
 }
 
-func (r *Repo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error) {
+func (r *Repo) GetWalletInTransaction(ctx context.Context, tx *sqlx.Tx, uuid uuid.UUID) (model.Wallet, error) {
 	var val wallet
 	s := "SELECT uuid, user_id, amount, currency FROM wallets WHERE uuid=$1 FOR UPDATE SKIP LOCKED"
 	if err := tx.GetContext(ctx, &val, s, uuid); err != nil {
@@ -101,7 +101,7 @@ func (r *Repo) GetWalletWithBlock(ctx context.Context, tx *sqlx.Tx, uuid uuid.UU
 	}, nil
 }
 
-func (r *Repo) GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error) {
+func (r *Repo) GetWalletsInTransaction(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error) {
 	var val []model.Wallet
 	s := "SELECT uuid, user_id, amount FROM wallets WHERE uuid=$1 OR uuid=$2 FOR UPDATE SKIP LOCKED"
 	if err := tx.SelectContext(ctx, &val, s, fromUUID, toUUID); err != nil {
@@ -123,8 +123,8 @@ func (r *Repo) GetWalletsWithBlock(ctx context.Context, tx *sqlx.Tx, fromUUID, t
 }
 
 func (r *Repo) SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) error {
-	s := "INSERT INTO wallets (uuid, user_id, amount) VALUES ($1, $2, $3) ON CONFLICT (uuid) DO UPDATE SET amount = EXCLUDED.amount"
-	_, err := tx.ExecContext(ctx, s, wal.UUID.String(), wal.UserID, wal.Amount.Amount())
+	s := "INSERT INTO wallets (uuid, user_id, amount, currency) VALUES ($1, $2, $3, $4) ON CONFLICT (uuid) DO UPDATE SET amount = EXCLUDED.amount"
+	_, err := tx.ExecContext(ctx, s, wal.UUID.String(), wal.UserID, wal.Amount.Amount(), wal.Amount.Currency().Code)
 	if err != nil {
 		return err
 	}
