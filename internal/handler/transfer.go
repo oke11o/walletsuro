@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 
-	"github.com/Rhymond/go-money"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	uuid2 "github.com/google/uuid"
@@ -15,7 +14,6 @@ import (
 )
 
 func (s *Server) Transfer(params wallet.TransferParams) middleware.Responder {
-	amount := money.New(params.Body.Amount, model.DefaultCurrency)
 	fromWalletUUID, err := uuid2.Parse(params.Body.FromWalletUUID.String())
 	if err != nil {
 		return wallet.NewTransferBadRequest().WithPayload(&models.SimpleResponse{
@@ -31,7 +29,7 @@ func (s *Server) Transfer(params wallet.TransferParams) middleware.Responder {
 		})
 	}
 
-	wal, err := s.service.Transfer(params.HTTPRequest.Context(), params.XUserID, fromWalletUUID, toWalletUUID, amount)
+	wal, err := s.service.Transfer(params.HTTPRequest.Context(), params.XUserID, fromWalletUUID, toWalletUUID, params.Body.Amount)
 
 	if err != nil {
 		log.Println(err)

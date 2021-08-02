@@ -116,7 +116,22 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/wallet"
+              "type": "object",
+              "required": [
+                "wallet_uuid",
+                "amount"
+              ],
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "x-nullable": false
+                },
+                "wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
+                }
+              }
             }
           }
         ],
@@ -248,7 +263,7 @@ func init() {
               ],
               "properties": {
                 "amount": {
-                  "type": "integer",
+                  "type": "number",
                   "x-nullable": false
                 },
                 "from_wallet_uuid": {
@@ -440,7 +455,22 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/wallet"
+              "type": "object",
+              "required": [
+                "wallet_uuid",
+                "amount"
+              ],
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "x-nullable": false
+                },
+                "wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
+                }
+              }
             }
           }
         ],
@@ -572,7 +602,7 @@ func init() {
               ],
               "properties": {
                 "amount": {
-                  "type": "integer",
+                  "type": "number",
                   "x-nullable": false
                 },
                 "from_wallet_uuid": {

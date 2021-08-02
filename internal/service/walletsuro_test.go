@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/Rhymond/go-money"
-
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -135,7 +134,7 @@ func (suite *walletsuroSuite) Test_CreateWallet() {
 }
 
 func (suite *walletsuroSuite) Test_Deposit() {
-	amount := money.New(200, model.DefaultCurrency)
+	amount := 2.0
 	UUID, err := uuid.Parse("81da6536-f03e-11eb-9a03-0242ac130003")
 	suite.Require().NoError(err)
 
@@ -192,7 +191,7 @@ func (suite *walletsuroSuite) Test_Deposit() {
 }
 
 func (suite *walletsuroSuite) Test_Transfer() {
-	amount := money.New(200, model.DefaultCurrency)
+	amount := 2.0
 	fromUUID, err := uuid.Parse("50805aec-eef2-4130-995e-12dde9ef0c1a")
 	suite.Require().NoError(err)
 	toUUID, err := uuid.Parse("81da6536-f03e-11eb-9a03-0242ac130003")

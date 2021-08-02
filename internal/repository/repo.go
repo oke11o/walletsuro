@@ -102,16 +102,16 @@ func (r *Repo) GetWalletInTransaction(ctx context.Context, tx *sqlx.Tx, uuid uui
 }
 
 func (r *Repo) GetWalletsInTransaction(ctx context.Context, tx *sqlx.Tx, fromUUID, toUUID uuid.UUID) (model.Wallet, model.Wallet, error) {
-	var val []model.Wallet
-	s := "SELECT uuid, user_id, amount FROM wallets WHERE uuid=$1 OR uuid=$2 FOR UPDATE SKIP LOCKED"
+	var val []wallet
+	s := "SELECT uuid, user_id, amount, currency FROM wallets WHERE uuid=$1 OR uuid=$2 FOR UPDATE SKIP LOCKED"
 	if err := tx.SelectContext(ctx, &val, s, fromUUID, toUUID); err != nil {
 		return model.Wallet{}, model.Wallet{}, err
 	}
 	if len(val) != 2 {
 		return model.Wallet{}, model.Wallet{}, errors.New("cant get both wallets")
 	}
-	var from, to model.Wallet
-	if fromUUID == val[0].UUID {
+	var from, to wallet
+	if fromUUID == val[0].Uuid {
 		from = val[0]
 		to = val[1]
 	} else {
@@ -119,7 +119,15 @@ func (r *Repo) GetWalletsInTransaction(ctx context.Context, tx *sqlx.Tx, fromUUI
 		from = val[1]
 	}
 
-	return from, to, nil
+	return model.Wallet{
+			UUID:   from.Uuid,
+			UserID: from.UserId,
+			Amount: money.New(from.Amount, from.Currency),
+		}, model.Wallet{
+			UUID:   to.Uuid,
+			UserID: to.UserId,
+			Amount: money.New(to.Amount, to.Currency),
+		}, nil
 }
 
 func (r *Repo) SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) error {
@@ -133,8 +141,11 @@ func (r *Repo) SaveWallet(ctx context.Context, tx *sqlx.Tx, wal model.Wallet) er
 
 // TODO: refactoring
 func (r *Repo) SaveWallets(ctx context.Context, tx *sqlx.Tx, wal model.Wallet, wal2 model.Wallet) error {
-	s := "INSERT INTO wallets (uuid, user_id, amount) VALUES ($1, $2, $3),($4,$5,$6) ON CONFLICT (uuid) DO UPDATE SET amount = EXCLUDED.amount"
-	_, err := tx.ExecContext(ctx, s, wal.UUID.String(), wal.UserID, wal.Amount.Amount(), wal2.UUID.String(), wal2.UserID, wal2.Amount.Amount())
+	s := "INSERT INTO wallets (uuid, user_id, amount, currency) VALUES ($1, $2, $3, $4),($5, $6, $7, $8) ON CONFLICT (uuid) DO UPDATE SET amount = EXCLUDED.amount"
+	_, err := tx.ExecContext(ctx, s,
+		wal.UUID.String(), wal.UserID, wal.Amount.Amount(), wal.Amount.Currency().Code,
+		wal2.UUID.String(), wal2.UserID, wal2.Amount.Amount(), wal2.Amount.Currency().Code,
+	)
 	if err != nil {
 		return err
 	}

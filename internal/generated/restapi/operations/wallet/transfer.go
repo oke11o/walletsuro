@@ -69,7 +69,7 @@ type TransferBody struct {
 
 	// amount
 	// Required: true
-	Amount int64 `json:"amount"`
+	Amount float64 `json:"amount"`
 
 	// from wallet uuid
 	// Required: true
@@ -106,7 +106,7 @@ func (o *TransferBody) Validate(formats strfmt.Registry) error {
 
 func (o *TransferBody) validateAmount(formats strfmt.Registry) error {
 
-	if err := validate.Required("body"+"."+"amount", "body", int64(o.Amount)); err != nil {
+	if err := validate.Required("body"+"."+"amount", "body", float64(o.Amount)); err != nil {
 		return err
 	}
 

@@ -135,7 +135,22 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/wallet"
+              "type": "object",
+              "required": [
+                "wallet_uuid",
+                "amount"
+              ],
+              "properties": {
+                "wallet_uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "x-nullable": false
+                },
+                "amount": {
+                  "type": "number",
+                  "x-nullable": false
+                }
+              }
             }
           }
         ],
@@ -206,7 +221,7 @@
                   "x-nullable": false
                 },
                 "amount": {
-                  "type": "integer",
+                  "type": "number",
                   "x-nullable": false
                 }
               }

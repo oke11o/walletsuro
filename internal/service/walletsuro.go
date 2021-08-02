@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/oke11o/walletsuro/internal/model"
+	"github.com/oke11o/walletsuro/internal/utils"
 )
 
 func New(repo repo) *Service {
@@ -36,7 +37,7 @@ func (s Service) CreateWallet(ctx context.Context, userID int64, currency string
 	return wal, nil
 }
 
-func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amount *money.Money) (model.Wallet, error) {
+func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amount float64) (model.Wallet, error) {
 	var wal model.Wallet
 	err := s.repo.WithTransaction(ctx, func(tx *sqlx.Tx) error {
 		var err error
@@ -45,15 +46,17 @@ func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amou
 		if err != nil {
 			return err
 		}
+		depAmount := utils.FloatWithFraction(amount, wal.Amount.Currency().Fraction)
+		depMoney := money.New(depAmount, wal.Amount.Currency().Code)
 
-		if err := wal.Deposit(amount); err != nil {
+		if err := wal.Deposit(depMoney); err != nil {
 			return err
 		}
 		if err := s.repo.SaveWallet(ctx, tx, wal); err != nil {
 			return err
 		}
 
-		return s.repo.Event(ctx, tx, userID, amount, wal.UUID, model.DepositType, nil)
+		return s.repo.Event(ctx, tx, userID, depMoney, wal.UUID, model.DepositType, nil)
 	})
 	if err != nil {
 		return model.Wallet{}, fmt.Errorf("cant create wallet %w", err)
@@ -62,7 +65,7 @@ func (s Service) Deposit(ctx context.Context, userID int64, uuid uuid.UUID, amou
 	return wal, nil
 }
 
-func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID, toUuid uuid.UUID, amount *money.Money) (model.Wallet, error) {
+func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID, toUuid uuid.UUID, amount float64) (model.Wallet, error) {
 	var fromWallet model.Wallet
 	err := s.repo.WithTransaction(ctx, func(tx *sqlx.Tx) error {
 		var err error
@@ -71,15 +74,21 @@ func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID,
 		if err != nil {
 			return err
 		}
-		err = s.checkWalletPermission(fromWallet, userID, amount)
+
+		transMoney := money.New(
+			utils.FloatWithFraction(amount, fromWallet.Amount.Currency().Fraction),
+			fromWallet.Amount.Currency().Code,
+		)
+
+		err = s.checkWalletPermission(fromWallet, userID, transMoney)
 		if err != nil {
 			return err
 		}
 
-		if err := fromWallet.Withdraw(amount); err != nil {
+		if err := fromWallet.Withdraw(transMoney); err != nil {
 			return err
 		}
-		if err := toWallet.Deposit(amount); err != nil {
+		if err := toWallet.Deposit(transMoney); err != nil {
 			return err
 		}
 
@@ -87,7 +96,7 @@ func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID,
 			return err
 		}
 
-		return s.repo.Event(ctx, tx, userID, amount, fromWallet.UUID, model.TransferType, &toWallet.UUID)
+		return s.repo.Event(ctx, tx, userID, transMoney, fromWallet.UUID, model.TransferType, &toWallet.UUID)
 	})
 	if err != nil {
 		return model.Wallet{}, fmt.Errorf("cant create wallet %w", err)
