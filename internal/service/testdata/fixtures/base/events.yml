@@ -2,15 +2,15 @@
   user_id: 2
   amount: 0
   currency: USD
-  target_wallet_uuid: 50805aec-eef2-4130-995e-12dde9ef0c1a
-  from_wallet_uuid:
+  wallet_uuid: 50805aec-eef2-4130-995e-12dde9ef0c1a
+  additional_data:
   type: create
   date: 2021-07-29 07:50:53
 - id: 10000
   user_id: 1
   amount: 0
   currency: USD
-  target_wallet_uuid: 81da6536-f03e-11eb-9a03-0242ac130003
-  from_wallet_uuid:
+  wallet_uuid: 81da6536-f03e-11eb-9a03-0242ac130003
+  additional_data:
   type: create
   date: 2021-07-29 07:50:53

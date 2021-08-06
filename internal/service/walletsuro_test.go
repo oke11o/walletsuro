@@ -119,15 +119,16 @@ func (suite *walletsuroSuite) Test_CreateWallet() {
 
 	// check events
 	type event struct {
-		ID               int64     `db:"id"`
-		TargetWalletUUID string    `db:"target_wallet_uuid"`
-		WalletUUID       *string   `db:"from_wallet_uuid"`
-		Amount           int64     `db:"amount"`
-		Date             time.Time `db:"date"`
-		Type             string    `db:"type"`
+		ID             int64     `db:"id"`
+		WalletUUID     string    `db:"wallet_uuid"`
+		AdditionalInfo *string   `db:"additional_data"`
+		Amount         int64     `db:"amount"`
+		Currency       string    `db:"currency"`
+		Date           time.Time `db:"date"`
+		Type           string    `db:"type"`
 	}
 	var events []event
-	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1"
+	sql := "SELECT id, wallet_uuid, additional_data, amount, currency, type, date FROM events WHERE type=$1"
 	err = suite.dbx.Select(&events, sql, "create")
 	suite.Require().NoError(err)
 	suite.Require().Len(events, 4)
@@ -158,34 +159,35 @@ func (suite *walletsuroSuite) Test_Deposit() {
 
 	// check events
 	type event struct {
-		ID               int64     `db:"id"`
-		TargetWalletUUID string    `db:"target_wallet_uuid"`
-		WalletUUID       *string   `db:"from_wallet_uuid"`
-		Amount           int64     `db:"amount"`
-		Date             time.Time `db:"date"`
-		Type             string    `db:"type"`
+		ID             int64     `db:"id"`
+		WalletUUID     string    `db:"wallet_uuid"`
+		AdditionalData *string   `db:"additional_data"`
+		Amount         int64     `db:"amount"`
+		Currency       string    `db:"currency"`
+		Date           time.Time `db:"date"`
+		Type           string    `db:"type"`
 	}
 	var events []event
-	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1 ORDER BY id"
+	sql := "SELECT id, wallet_uuid, additional_data, amount, type, date FROM events WHERE type=$1 ORDER BY id"
 	err = suite.dbx.Select(&events, sql, "deposit")
 	suite.Require().NoError(err)
 	suite.Require().Len(events, 2)
 	suite.Require().Equal([]event{
 		{
-			ID:               events[0].ID,
-			TargetWalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
-			WalletUUID:       nil,
-			Amount:           200,
-			Date:             events[0].Date,
-			Type:             "deposit",
+			ID:             events[0].ID,
+			WalletUUID:     "81da6536-f03e-11eb-9a03-0242ac130003",
+			AdditionalData: nil,
+			Amount:         200,
+			Date:           events[0].Date,
+			Type:           "deposit",
 		},
 		{
-			ID:               events[1].ID,
-			TargetWalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
-			WalletUUID:       nil,
-			Amount:           200,
-			Date:             events[1].Date,
-			Type:             "deposit",
+			ID:             events[1].ID,
+			WalletUUID:     "81da6536-f03e-11eb-9a03-0242ac130003",
+			AdditionalData: nil,
+			Amount:         200,
+			Date:           events[1].Date,
+			Type:           "deposit",
 		},
 	}, events)
 }
@@ -212,26 +214,34 @@ func (suite *walletsuroSuite) Test_Transfer() {
 
 	// check events
 	type event struct {
-		ID               int64     `db:"id"`
-		TargetWalletUUID string    `db:"target_wallet_uuid"`
-		WalletUUID       *string   `db:"from_wallet_uuid"`
-		Amount           int64     `db:"amount"`
-		Date             time.Time `db:"date"`
-		Type             string    `db:"type"`
+		ID             int64     `db:"id"`
+		WalletUUID     string    `db:"wallet_uuid"`
+		AdditionalData *string   `db:"additional_data"`
+		Amount         int64     `db:"amount"`
+		Date           time.Time `db:"date"`
+		Type           string    `db:"type"`
 	}
 	var events []event
-	sql := "SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE type=$1 ORDER BY id"
-	err = suite.dbx.Select(&events, sql, "transfer")
+	sql := "SELECT id, wallet_uuid, additional_data, amount, type, date FROM events WHERE type IN ($1, $2) ORDER BY id"
+	err = suite.dbx.Select(&events, sql, model.WithdrawType, model.DepositType)
 	suite.Require().NoError(err)
-	suite.Require().Len(events, 1)
+	suite.Require().Len(events, 2)
 	suite.Require().Equal([]event{
 		{
-			ID:               events[0].ID,
-			TargetWalletUUID: "50805aec-eef2-4130-995e-12dde9ef0c1a",
-			WalletUUID:       pointer.ToString("81da6536-f03e-11eb-9a03-0242ac130003"),
-			Amount:           200,
-			Date:             events[0].Date,
-			Type:             "transfer",
+			ID:             events[0].ID,
+			WalletUUID:     "50805aec-eef2-4130-995e-12dde9ef0c1a",
+			AdditionalData: pointer.ToString("81da6536-f03e-11eb-9a03-0242ac130003"),
+			Amount:         200,
+			Date:           events[0].Date,
+			Type:           model.WithdrawType,
+		},
+		{
+			ID:             events[1].ID,
+			WalletUUID:     "81da6536-f03e-11eb-9a03-0242ac130003",
+			AdditionalData: pointer.ToString("50805aec-eef2-4130-995e-12dde9ef0c1a"),
+			Amount:         200,
+			Date:           events[1].Date,
+			Type:           model.DepositType,
 		},
 	}, events)
 }
@@ -242,26 +252,35 @@ func (suite *walletsuroSuite) Test_Report() {
 	userID := int64(2)
 	report, err := suite.service.Report(context.Background(), userID, nil, nil)
 	suite.Require().NoError(err)
-	expected := []model.ReportData{
+	suite.Require().Len(report, 3)
+
+	expected := []model.Event{
 		{
-			WalletUUID: "50805aec-eef2-4130-995e-12dde9ef0c1a",
-			Date:       "2021-07-29T18:16:08Z",
-			Type:       "transfer",
-			Amount:     "$2.00"},
+			UserID:         2,
+			WalletUUID:     uuid.MustParse("50805aec-eef2-4130-995e-12dde9ef0c1a"),
+			Date:           mustDate(suite.T(), time.RFC3339, "2021-07-29T18:16:08.395839+00:00"),
+			Type:           model.WithdrawType,
+			Amount:         money.New(200, model.DefaultCurrency),
+			AdditionalInfo: pointer.ToString("81da6536-f03e-11eb-9a03-0242ac130003"),
+		},
 		{
-			WalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
-			Date:       "2021-07-29T18:37:08Z",
-			Type:       "deposit",
-			Amount:     "$2.00"},
+			UserID:     2,
+			WalletUUID: uuid.MustParse("81da6536-f03e-11eb-9a03-0242ac130003"),
+			Date:       mustDate(suite.T(), time.RFC3339, "2021-07-29T18:37:08.395839+00:00"),
+			Type:       model.DepositType,
+			Amount:     money.New(200, model.DefaultCurrency),
+		},
 		{
-			WalletUUID: "81da6536-f03e-11eb-9a03-0242ac130003",
-			Date:       "2021-07-29T18:37:08Z",
-			Type:       "deposit",
-			Amount:     "$2.00",
+			UserID:     2,
+			WalletUUID: uuid.MustParse("81da6536-f03e-11eb-9a03-0242ac130003"),
+			Date:       mustDate(suite.T(), time.RFC3339, "2021-07-29T18:37:08.395839+00:00"),
+			Type:       model.DepositType,
+			Amount:     money.New(200, model.DefaultCurrency),
 		},
 	}
-	suite.Len(report, 3)
-	suite.Equal(expected, report)
+	suite.Equal(expected[0], report[0])
+	suite.Equal(expected[1], report[1])
+	suite.Equal(expected[2], report[2])
 
 }
 
@@ -313,4 +332,10 @@ func (suite *walletsuroSuite) loadFixtures(dir string, data interface{}) {
 
 	err = fxrPGSQL.Load()
 	suite.Require().NoError(err)
+}
+
+func mustDate(t *testing.T, layout, val string) time.Time {
+	tm, err := time.Parse(layout, val)
+	require.NoError(t, err)
+	return tm
 }

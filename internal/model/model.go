@@ -58,18 +58,10 @@ func (w *Wallet) IsEnough(amount *money.Money) bool {
 }
 
 type Event struct {
-	ID               int64
-	UserID           int64
-	Amount           *money.Money
-	TargetWalletUUID uuid.UUID
-	FromWalletUUID   uuid.UUID
-	Type             string
-	Date             time.Time
-}
-
-type ReportData struct {
-	WalletUUID string `csv:"wallet_uuid"`
-	Date       string `csv:"date"`
-	Type       string `csv:"type"`
-	Amount     string `csv:"amount"`
+	UserID         int64
+	Amount         *money.Money
+	WalletUUID     uuid.UUID
+	Type           string
+	Date           time.Time
+	AdditionalInfo *string
 }

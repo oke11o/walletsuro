@@ -45,24 +45,6 @@ func (Repo) CreateWallet(ctx context.Context, tx sqlx.ExecerContext, userID int6
 	}, nil
 }
 
-func (Repo) Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *money.Money, targetWallet uuid.UUID, eventType string, fromWallet *uuid.UUID) error {
-	args := make([]interface{}, 0, 3)
-	args = append(args, userID, amount.Amount(), amount.Currency().Code, targetWallet.String(), eventType)
-	var sql string
-	if fromWallet != nil {
-		args = append(args, fromWallet.String())
-		sql = "INSERT INTO events (user_id, amount, currency, target_wallet_uuid, type, from_wallet_uuid) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"
-	} else {
-		sql = "INSERT INTO events (user_id, amount, currency,target_wallet_uuid, type) VALUES ($1, $2, $3, $4, $5) RETURNING id"
-	}
-
-	_, err := tx.ExecContext(ctx, sql, args...)
-	if err != nil {
-		return fmt.Errorf("cant save event: %w", err)
-	}
-	return nil
-}
-
 func (r *Repo) WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) error {
 	var err error
 	tx, err := r.db.BeginTxx(ctx, nil)
@@ -83,6 +65,24 @@ func (r *Repo) WithTransaction(ctx context.Context, fn func(tx *sqlx.Tx) error) 
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("committing tx: %w", err)
+	}
+	return nil
+}
+
+func (Repo) Event(ctx context.Context, tx sqlx.ExecerContext, userID int64, amount *money.Money, walletUUID uuid.UUID, eventType string, addData *string) error {
+	args := make([]interface{}, 0, 6)
+	args = append(args, userID, amount.Amount(), amount.Currency().Code, walletUUID.String(), eventType)
+	var sql string
+	if addData != nil {
+		args = append(args, *addData)
+		sql = "INSERT INTO events (user_id, amount, currency, wallet_uuid, type, additional_data) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"
+	} else {
+		sql = "INSERT INTO events (user_id, amount, currency, wallet_uuid, type) VALUES ($1, $2, $3, $4, $5) RETURNING id"
+	}
+
+	_, err := tx.ExecContext(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("cant save event: %w", err)
 	}
 	return nil
 }
@@ -152,31 +152,10 @@ func (r *Repo) SaveWallets(ctx context.Context, tx *sqlx.Tx, wal model.Wallet, w
 	return nil
 }
 
-type event struct {
-	ID               int64     `db:"id"`
-	TargetWalletUUID string    `db:"target_wallet_uuid"`
-	WalletUUID       *string   `db:"from_wallet_uuid"`
-	Amount           int64     `db:"amount"`
-	Date             time.Time `db:"date"`
-	Type             string    `db:"type"`
-}
+func (r *Repo) FindEvents(ctx context.Context, userID int64, t *string, dateFrom, dateTo *time.Time) ([]model.Event, error) {
+	sql, agrs := r.buildSQL(userID, t, dateFrom, dateTo)
 
-func (r *Repo) FindEvents(ctx context.Context, userID int64, t *string, date *time.Time) ([]model.Event, error) {
-	agrs := []interface{}{userID}
-	var sqlBuilder strings.Builder
-	sqlBuilder.WriteString("SELECT id, from_wallet_uuid, target_wallet_uuid, amount, type, date FROM events WHERE user_id=?")
-	if t != nil {
-		sqlBuilder.WriteString(" AND type=?")
-		agrs = append(agrs, *t)
-	} else {
-		sqlBuilder.WriteString(" AND type IN (?,?)")
-		agrs = append(agrs, model.TransferType, model.DepositType)
-	}
-	if date != nil {
-		sqlBuilder.WriteString(" AND date>=? AND date<?")
-		agrs = append(agrs, date.Format("2006-01-02"), date.Add(time.Hour*24).Format("2006-01-02"))
-	}
-	rows, err := r.db.QueryxContext(ctx, r.db.Rebind(sqlBuilder.String()), agrs...)
+	rows, err := r.db.QueryxContext(ctx, r.db.Rebind(sql), agrs...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,28 +166,38 @@ func (r *Repo) FindEvents(ctx context.Context, userID int64, t *string, date *ti
 		if err != nil {
 			return nil, err
 		}
-		TargetWalletUUID, err := uuid.Parse(dest.TargetWalletUUID)
-		if err != nil {
-			return nil, err
-		}
-		var FromWalletUUID uuid.UUID
-		if dest.WalletUUID != nil {
-			FromWalletUUID, err = uuid.Parse(*dest.WalletUUID)
-			if err != nil {
-				return nil, err
-			}
-		}
 
 		result = append(result, model.Event{
-			ID:               0,
-			UserID:           userID,
-			Amount:           money.New(dest.Amount, model.DefaultCurrency),
-			TargetWalletUUID: TargetWalletUUID,
-			FromWalletUUID:   FromWalletUUID,
-			Type:             dest.Type,
-			Date:             dest.Date,
+			UserID:         userID,
+			Amount:         money.New(dest.Amount, model.DefaultCurrency),
+			WalletUUID:     dest.WalletUUID,
+			Type:           dest.Type,
+			Date:           dest.Date,
+			AdditionalInfo: dest.AdditionalData,
 		})
 	}
 
 	return result, nil
+}
+
+func (r *Repo) buildSQL(userID int64, t *string, dateFrom *time.Time, dateTo *time.Time) (string, []interface{}) {
+	agrs := []interface{}{userID}
+	var sqlBuilder strings.Builder
+	sqlBuilder.WriteString("SELECT wallet_uuid, amount, currency, type, date, additional_data FROM events WHERE user_id=?")
+	if t != nil {
+		sqlBuilder.WriteString(" AND type=?")
+		agrs = append(agrs, *t)
+	} else {
+		sqlBuilder.WriteString(" AND type IN (?, ?)")
+		agrs = append(agrs, model.WithdrawType, model.DepositType)
+	}
+	if dateFrom != nil {
+		sqlBuilder.WriteString(" AND date>=? ")
+		agrs = append(agrs, dateFrom.Format("2006-01-02"))
+	}
+	if dateTo != nil {
+		sqlBuilder.WriteString(" AND date<?")
+		agrs = append(agrs, dateTo.Format("2006-01-02"))
+	}
+	return sqlBuilder.String(), agrs
 }

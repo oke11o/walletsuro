@@ -8,6 +8,7 @@ import (
 	"github.com/Rhymond/go-money"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"go.octolab.org/pointer"
 
 	"github.com/oke11o/walletsuro/internal/model"
 	"github.com/oke11o/walletsuro/internal/utils"
@@ -96,7 +97,11 @@ func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID,
 			return err
 		}
 
-		return s.repo.Event(ctx, tx, userID, transMoney, fromWallet.UUID, model.TransferType, &toWallet.UUID)
+		if err := s.repo.Event(ctx, tx, userID, transMoney, fromWallet.UUID, model.WithdrawType, pointer.ToString(toWallet.UUID.String())); err != nil {
+			return err
+		}
+
+		return s.repo.Event(ctx, tx, userID, transMoney, toWallet.UUID, model.DepositType, pointer.ToString(fromWallet.UUID.String()))
 	})
 	if err != nil {
 		return model.Wallet{}, fmt.Errorf("cant create wallet %w", err)
@@ -105,23 +110,18 @@ func (s Service) Transfer(ctx context.Context, userID int64, fromUuid uuid.UUID,
 	return fromWallet, nil
 }
 
-func (s Service) Report(ctx context.Context, userID int64, t *string, date *time.Time) ([]model.ReportData, error) {
-	res, err := s.repo.FindEvents(ctx, userID, t, date)
+func (s Service) Report(ctx context.Context, userID int64, eventType *string, date *time.Time) ([]model.Event, error) {
+	var toDate *time.Time
+	if date != nil {
+		d := date.Add(24 * time.Hour)
+		toDate = &d
+	}
+	res, err := s.repo.FindEvents(ctx, userID, eventType, date, toDate)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]model.ReportData, 0, len(res))
-	for _, r := range res {
-		result = append(result, model.ReportData{
-			WalletUUID: r.TargetWalletUUID.String(),
-			Date:       r.Date.Format(time.RFC3339),
-			Type:       r.Type,
-			Amount:     r.Amount.Display(),
-		})
-	}
-
-	return result, nil
+	return res, nil
 }
 
 func (s Service) checkWalletPermission(wal model.Wallet, userID int64, amount *money.Money) error {
